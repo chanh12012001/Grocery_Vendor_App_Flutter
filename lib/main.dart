@@ -1,7 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:grocery_vendor_app_flutter/providers/auth_provider.dart';
+import 'package:grocery_vendor_app_flutter/providers/order_provider.dart';
 import 'package:grocery_vendor_app_flutter/providers/product_provider.dart';
+import 'package:grocery_vendor_app_flutter/screens/add_edit_coupon_screen.dart';
 import 'package:grocery_vendor_app_flutter/screens/add_new_product_screen.dart';
 import 'package:grocery_vendor_app_flutter/screens/home_screen.dart';
 import 'package:grocery_vendor_app_flutter/screens/login_screen.dart';
@@ -20,6 +22,7 @@ void main() async{
     providers: [
       Provider(create: (_) => AuthProvider()),
       Provider(create: (_) => ProductProvider()),
+      Provider(create: (_) => OrderProvider()),
     ],
     child: MyApp(),
   ),);
@@ -43,6 +46,7 @@ class MyApp extends StatelessWidget {
           LoginScreen.id : (context) => LoginScreen(),
           ResetPassword.id : (context) => ResetPassword(),
           AddNewProduct.id : (context) => AddNewProduct(),
+          AddEditCoupon.id : (context) => AddEditCoupon(),
         }
     );
   }
