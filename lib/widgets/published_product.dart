@@ -8,13 +8,12 @@ class PublishedProducts extends StatelessWidget {
   Widget build(BuildContext context) {
 
     FirebaseServices _services = FirebaseServices();
-
     return Container(
       child: StreamBuilder(
-        stream: _services.products.where('published', isEqualTo: true).snapshots(),
-        builder: (context, snapshot){
-          if (snapshot.hasError){
-            return Text('Đã xảy ra lỗi');
+        stream: _services.products.where('published',isEqualTo: true).snapshots(),
+        builder: (context,snapshot){
+          if(snapshot.hasError){
+            return Text('Đã xảy ra sự cố');
           }
           if(snapshot.connectionState == ConnectionState.waiting){
             return Center(child: CircularProgressIndicator(),);
@@ -26,95 +25,108 @@ class PublishedProducts extends StatelessWidget {
                 dataRowHeight: 60,
                 headingRowColor: MaterialStateProperty.all(Colors.grey[200]),
                 columns: <DataColumn>[
-                  DataColumn(label: Expanded(child: Text('Tên'))),
-                  DataColumn(label: Text('Hình ảnh')),
-                  DataColumn(label: Text('Thông tin')),
-                  DataColumn(label: Expanded(child: Text('Hoạt động'))),
+                  DataColumn(label: Expanded(child: Text('Sản phẩm')),),
+                  DataColumn(label: Text('Ảnh'),),
+                  DataColumn(label: Text('Thông tin'),),
+                  DataColumn(label: Text('Hoạt động'),),
                 ],
-                rows: _productDetails(snapshot.data, context),
+                rows: _productDetails(snapshot.data,context),
               ),
             ),
-          );
+          ) ;
         },
       ),
     );
   }
-  List<DataRow>_productDetails(QuerySnapshot snapshot, context){
+
+  List<DataRow>_productDetails(QuerySnapshot snapshot,context){
     List<DataRow> newList = snapshot.docs.map((DocumentSnapshot document){
-      if (document != null){
+      if(document!=null){
         return DataRow(
-          cells: [
-            DataCell(
-              Container(
-                // width: 0,
-                child: ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Row(
-                    children: [
-                      Text('Tên: ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),),
-                      Text(document['productName'], style: TextStyle(fontSize: 15)),
-                    ],
-                  ),
-                  subtitle: Row(
-                    children: [
-                      Text('Mã: ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),),
-                      Text(document['sku'], style: TextStyle(fontSize: 12)),
-                    ],
+            cells: [
+              DataCell(
+                  Container(child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Row(
+                      children: [
+                        Text(
+                          'Tên: ',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            document['productName'],
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
+                    subtitle: Row(
+                      children: [
+                        Text(
+                          'Mã: ',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                        Text(document['sku'],style: TextStyle(fontSize: 12,),
+                        ),
+                      ],
+                    ),
+                  ),),
+              ),
+              DataCell(
+                Container(
+                  child: Padding(
+                    padding: const EdgeInsets.all(3.0),
+                    child: Row(
+                      children: [
+                        Image.network(document['productImage'], width: 50,),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            DataCell(
-              Container(child: Padding(
-                padding: const EdgeInsets.all(3.0),
-                child: Row(
-                  children: [
-                    Image.network(document['productImage'], width: 50,),
-                  ],
-                ),
-              ),),
-            ),
-            DataCell(
-                IconButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => EditViewProduct(
+              DataCell(
+                  IconButton(onPressed: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=> EditViewProduct(
                       productId: document['productId'],
-                    )));
-                  },
-                  icon: Icon(Icons.info_outline),
-                )
-            ),
-            DataCell(
-                popUpButton(document.data())
-            ),
-          ],
+                    ),),);
+                   },icon: Icon(Icons.info_outline),)
+              ),
+              DataCell(
+                  popUpButton(document.data())
+              ),
+            ]
         );
       }
     }).toList();
     return newList;
   }
 
-  Widget popUpButton(data, {BuildContext context}){
-
+  Widget popUpButton(data,{BuildContext context}){
     FirebaseServices _services = FirebaseServices();
-
     return PopupMenuButton<String>(
-      onSelected: (String value) {
-        if(value == 'Ngừng phát hành'){
-          _services.UnPublishProduct(
-              id: data['productId']
-          );
-        }
-      },
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        const PopupMenuItem<String>(
-          value: 'Ngừng phát hành',
-          child: ListTile(
-            leading: Icon(Icons.check),
-            title: Text('Ngừng phát hành'),
+        onSelected: (String value){
+          if(value == 'unpublish'){
+            _services.unPublishProduct(
+              id: data['productId'],
+            );
+          }
+        },
+        itemBuilder: (BuildContext context)=><PopupMenuEntry<String>>[
+          const PopupMenuItem<String>(
+            value: 'unpublish',
+            child: ListTile(
+              leading: Icon(Icons.check),
+              title: Text('Chưa phát hành'),
+            ),
           ),
-        ),
-      ],
+        ]
     );
   }
 }

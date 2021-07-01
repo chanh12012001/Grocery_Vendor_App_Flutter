@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 
 class EditViewProduct extends StatefulWidget {
   final String productId;
+
   EditViewProduct({this.productId});
 
   @override
@@ -16,12 +17,11 @@ class EditViewProduct extends StatefulWidget {
 }
 
 class _EditViewProductState extends State<EditViewProduct> {
-
   FirebaseServices _services = FirebaseServices();
   final _formKey = GlobalKey<FormState>();
 
   List<String> _collections = [
-    'Sản phẩm đặc trưng',
+    'Sản phẩm nổi bật',
     'Bán chạy nhất',
     'Được thêm gần đây'
   ];
@@ -39,13 +39,14 @@ class _EditViewProductState extends State<EditViewProduct> {
   var _stockTextController = TextEditingController();
   var _lowStockTextController = TextEditingController();
   var _taxTextController = TextEditingController();
+
   DocumentSnapshot doc;
   double discount;
   String image;
   String categoryImage;
   File _image;
   bool _visible = false;
-  bool _editing = true;
+  bool _editing= true;
 
   @override
   void initState() {
@@ -54,27 +55,30 @@ class _EditViewProductState extends State<EditViewProduct> {
   }
 
   Future<void> getProductDetails() async {
-    _services.products.doc(widget.productId).get().then((DocumentSnapshot document) {
-      if (document.exists){
+    _services.products
+        .doc(widget.productId)
+        .get()
+        .then((DocumentSnapshot document) {
+      if (document.exists) {
         setState(() {
           doc = document;
-          _brandText.text =document['brand'];
-          _skuText.text =document['sku'];
-          _productNameText.text =document['productName'];
-          _weightText.text =document['weight'];
-          _priceText.text =document['price'].toString();
-          _comparedPriceText.text =document['comparedPrice'].toString();
-          var difference = int.parse(_comparedPriceText.text) - double.parse(_priceText.text);
-          discount = (difference / int.parse(_comparedPriceText.text)*100);
+          _brandText.text = document['brand'];
+          _skuText.text = document['sku'];
+          _productNameText.text = document['productName'];
+          _weightText.text = document['weight'];
+          _priceText.text = document['price'].toString();
+          _comparedPriceText.text = document['comparedPrice'].toString();
+          var difference =  int.parse(_comparedPriceText.text) - double.parse(_priceText.text);
+          discount = (difference / int.parse(_comparedPriceText.text) * 100);
           image = document['productImage'];
-          _descriptionText.text =document['description'];
-          _categoryTextController.text =document['category']['mainCategory'];
-          _subCategoryTextController.text =document['category']['subCategory'];
-          dropdownValue =document['collection'];
-          _stockTextController.text =document['stockQty'].toString();
-          _lowStockTextController.text =document['lowStockQty'].toString();
-          _taxTextController.text =document['tax'].toString();
-          //categoryImage =document['categoryImage'];
+          _descriptionText.text = document['description'];
+          _categoryTextController.text = document['category']['mainCategory'];
+          _subCategoryTextController.text = document['category']['subCategory'];
+          dropdownValue = document['collection'];
+          _stockTextController.text = document['stockQty'].toString();
+          _lowStockTextController.text = document['lowStockQty'].toString();
+          _taxTextController.text = document['tax'].toString();
+          categoryImage = document['categoryImage'];
         });
       }
     });
@@ -82,20 +86,22 @@ class _EditViewProductState extends State<EditViewProduct> {
 
   @override
   Widget build(BuildContext context) {
-
     var _provider = Provider.of<ProductProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(
-          color: Colors.white
+            color: Colors.white
         ),
         actions: [
           FlatButton(
-            child: Text('Sửa', style: TextStyle(color: Colors.white),),
-            onPressed: () {
+            child: Text(
+              'Sửa',
+              style: TextStyle(color: Colors.white),
+            ),
+            onPressed: (){
               setState(() {
-                _editing = false;
+                _editing=false;
               });
             },
           ),
@@ -107,14 +113,14 @@ class _EditViewProductState extends State<EditViewProduct> {
           children: [
             Expanded(
               child: InkWell(
-                onTap: (){
+                onTap: () {
                   Navigator.pop(context);
                 },
                 child: Container(
                   color: Colors.black87,
                   child: Center(
                     child: Text(
-                    'Hủy bỏ',
+                      'Cancel',
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
@@ -125,12 +131,16 @@ class _EditViewProductState extends State<EditViewProduct> {
               child: AbsorbPointer(
                 absorbing: _editing,
                 child: InkWell(
-                  onTap: (){
-                    if (_formKey.currentState.validate()){
+                  onTap: () {
+                    if (_formKey.currentState.validate()) {
                       EasyLoading.show(status: 'Đang lưu...');
                       if (_image != null) {
-                        _provider.uploadProductImage(_image.path, _productNameText.text).then((url) {
-                          if (url != null){
+                        //lần đầu tiên tải hình ảnh mới và lưu dữ liệu
+                        _provider
+                            .uploadProductImage(
+                            _image.path, _productNameText.text)
+                            .then((url) {
+                          if (url != null) {
                             EasyLoading.dismiss();
                             _provider.updateProduct(
                               context: context,
@@ -140,7 +150,8 @@ class _EditViewProductState extends State<EditViewProduct> {
                               stockQty: int.parse(_stockTextController.text),
                               sku: _skuText.text,
                               price: double.parse(_priceText.text),
-                              lowStockQty: int.parse(_lowStockTextController.text),
+                              lowStockQty:
+                              int.parse(_lowStockTextController.text),
                               description: _descriptionText.text,
                               collection: dropdownValue,
                               brand: _brandText.text,
@@ -154,25 +165,25 @@ class _EditViewProductState extends State<EditViewProduct> {
                           }
                         });
                       } else {
+                        //Cập nhật dưc liệu
                         _provider.updateProduct(
-                          context: context,
-                          productName: _productNameText.text,
-                          weight: _weightText.text,
-                          tax: double.parse(_taxTextController.text),
-                          stockQty: int.parse(_stockTextController.text),
-                          sku: _skuText.text,
-                          price: double.parse(_priceText.text),
-                          lowStockQty: int.parse(_lowStockTextController.text),
-                          description: _descriptionText.text,
-                          collection: dropdownValue,
-                          brand: _brandText.text,
-                          comparedPrice: int.parse(_comparedPriceText.text),
-                          productId: widget.productId,
-                          image: image,
-                          category: _categoryTextController.text,
-                          subCategory: _subCategoryTextController.text,
-                          categoryImage: categoryImage,
-                        );
+                            context: context,
+                            productName: _productNameText.text,
+                            weight: _weightText.text,
+                            tax: double.parse(_taxTextController.text),
+                            stockQty: int.parse(_stockTextController.text),
+                            sku: _skuText.text,
+                            price: double.parse(_priceText.text),
+                            lowStockQty: int.parse(_lowStockTextController.text),
+                            description: _descriptionText.text,
+                            collection: dropdownValue,
+                            brand: _brandText.text,
+                            comparedPrice: int.parse(_comparedPriceText.text),
+                            productId: widget.productId,
+                            image: image,
+                            category: _categoryTextController.text,
+                            subCategory: _subCategoryTextController.text,
+                            categoryImage: categoryImage);
                         EasyLoading.dismiss();
                       }
                       _provider.resetProvider();
@@ -183,7 +194,8 @@ class _EditViewProductState extends State<EditViewProduct> {
                     child: Center(
                       child: Text(
                         'Lưu',
-                        style: TextStyle(color: Colors.white),),
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
                 ),
@@ -207,12 +219,13 @@ class _EditViewProductState extends State<EditViewProduct> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
-                          width:80,
+                          width: 80,
                           height: 30,
                           child: TextFormField(
                             controller: _brandText,
                             decoration: InputDecoration(
-                              contentPadding: EdgeInsets.only(left: 10, right: 10),
+                              contentPadding:
+                              EdgeInsets.only(left: 10, right: 10),
                               hintText: 'Nhãn hiệu',
                               hintStyle: TextStyle(color: Colors.grey),
                               border: OutlineInputBorder(),
@@ -224,7 +237,7 @@ class _EditViewProductState extends State<EditViewProduct> {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text('Mã: '),
+                            Text('Mã sản phẩm: '),
                             Container(
                               width: 50,
                               child: TextFormField(
@@ -237,16 +250,15 @@ class _EditViewProductState extends State<EditViewProduct> {
                               ),
                             )
                           ],
-                        )
+                        ),
                       ],
                     ),
                     SizedBox(
                       height: 20,
                       child: TextFormField(
                         decoration: InputDecoration(
-                          contentPadding: EdgeInsets.zero,
-                          border: InputBorder.none
-                        ),
+                            contentPadding: EdgeInsets.zero,
+                            border: InputBorder.none),
                         controller: _productNameText,
                         style: TextStyle(fontSize: 30),
                       ),
@@ -256,8 +268,7 @@ class _EditViewProductState extends State<EditViewProduct> {
                       child: TextFormField(
                         decoration: InputDecoration(
                             contentPadding: EdgeInsets.zero,
-                            border: InputBorder.none
-                        ),
+                            border: InputBorder.none),
                         controller: _weightText,
                         style: TextStyle(fontSize: 20),
                       ),
@@ -266,50 +277,53 @@ class _EditViewProductState extends State<EditViewProduct> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(
-                          width: 100,
+                          width: 80,
                           child: TextFormField(
                             decoration: InputDecoration(
-                                contentPadding: EdgeInsets.zero,
-                                border: InputBorder.none,
-                                prefixText: '\VNĐ ',
+                              contentPadding: EdgeInsets.zero,
+                              border: InputBorder.none,
+                              prefixText: '\VNĐ',
                             ),
                             controller: _priceText,
                             style: TextStyle(fontSize: 18),
                           ),
                         ),
-                        SizedBox(width: 30,),
                         Container(
-                          width: 100,
+                          width: 80,
                           child: TextFormField(
                             decoration: InputDecoration(
-                                contentPadding: EdgeInsets.zero,
-                                border: InputBorder.none,
-                                prefixText: '\VNĐ ',
+                              contentPadding: EdgeInsets.zero,
+                              border: InputBorder.none,
+                              prefixText: '\VNĐ',
                             ),
                             controller: _comparedPriceText,
-                            style: TextStyle(fontSize: 15, decoration: TextDecoration.lineThrough),
-
+                            style: TextStyle(
+                                fontSize: 15,
+                                decoration: TextDecoration.lineThrough),
                           ),
                         ),
                         Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(3),
-                            color: Colors.red
+                            color: Colors.red,
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 8, right: 8),
-                            child: Text('${discount.toStringAsFixed(0)}% OFF', style: TextStyle(color: Colors.white)),
+                            padding:
+                            const EdgeInsets.only(left: 8, right: 8),
+                            child: Text(
+                              '${discount.toStringAsFixed(0)}% OFF',
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
-
                       ],
                     ),
                     Text(
-                      'Bao gồm tất cả các loại thuế',
+                      'Bao gồm tất cả thuế',
                       style: TextStyle(color: Colors.grey, fontSize: 12),
                     ),
                     InkWell(
-                      onTap: (){
+                      onTap: () {
                         _provider.getProductImage().then((image) {
                           setState(() {
                             _image = image;
@@ -320,10 +334,14 @@ class _EditViewProductState extends State<EditViewProduct> {
                         padding: const EdgeInsets.all(8.0),
                         child: _image != null
                             ? Image.file(_image, height: 300,)
-                            : Image.network(image,height: 300,),
+                            : Image.network(image, height: 300,
+                        ),
                       ),
                     ),
-                    Text('Thông tin sản phẩm', style: TextStyle(fontSize: 20),),
+                    Text(
+                      'Thông tin sản phẩm',
+                      style: TextStyle(fontSize: 20),
+                    ),
                     Padding(
                       padding: EdgeInsets.all(8),
                       child: TextFormField(
@@ -333,10 +351,12 @@ class _EditViewProductState extends State<EditViewProduct> {
                         style: TextStyle(
                           color: Colors.grey,
                         ),
-                        decoration: InputDecoration(border: InputBorder.none,),
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                        ),
                       ),
                     ),
-                    Padding (
+                    Padding(
                       padding: const EdgeInsets.only(top: 20, bottom: 10),
                       child: Row(
                         children: [
@@ -347,26 +367,30 @@ class _EditViewProductState extends State<EditViewProduct> {
                               fontSize: 16,
                             ),
                           ),
-                          SizedBox(width: 10,),
+                          SizedBox(
+                            width: 10,
+                          ),
                           Expanded(
                             child: AbsorbPointer(
-                              absorbing: true, //this will block user entering category name manually
+                              absorbing: true,
                               child: TextFormField(
                                 controller: _categoryTextController,
                                 validator: (value) {
-                                  if (value.isEmpty){
-                                    return 'Vui lòng chọn tên danh mục';
+                                  if (value.isEmpty) {
+                                    return 'Chọn tên danh mục';
                                   }
                                   return null;
                                 },
                                 decoration: InputDecoration(
-                                    hintText: 'Không được chọn',
-                                    labelStyle: TextStyle(color: Colors.grey),
-                                    enabledBorder: UnderlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.grey[300]
-                                        )
-                                    )
+                                  hintText: 'Chưa chọn',
+                                  labelStyle: TextStyle(
+                                    color: Colors.grey,
+                                  ),
+                                  enabledBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[300],
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -377,11 +401,10 @@ class _EditViewProductState extends State<EditViewProduct> {
                               icon: Icon(Icons.edit_outlined),
                               onPressed: () {
                                 showDialog(
-                                  context: context,
-                                  builder: (BuildContext context){
-                                    return CategoryList();
-                                  },
-                                ).whenComplete(() {
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return CategoryList();
+                                    }).whenComplete(() {
                                   setState(() {
                                     _categoryTextController.text = _provider.selectedCategory;
                                     _visible = true;
@@ -389,7 +412,7 @@ class _EditViewProductState extends State<EditViewProduct> {
                                 });
                               },
                             ),
-                          ),
+                          )
                         ],
                       ),
                     ),
@@ -401,28 +424,35 @@ class _EditViewProductState extends State<EditViewProduct> {
                           children: [
                             Text(
                               'Danh mục phụ',
-                              style: TextStyle(color: Colors.grey, fontSize: 16),
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 16,
+                              ),
                             ),
-                            SizedBox(width: 10,),
+                            SizedBox(
+                              width: 10,
+                            ),
                             Expanded(
                               child: AbsorbPointer(
                                 absorbing: true,
                                 child: TextFormField(
                                   controller: _subCategoryTextController,
                                   validator: (value) {
-                                    if (value.isEmpty){
+                                    if (value.isEmpty) {
                                       return 'Vui lòng chọn tên danh mục phụ';
                                     }
                                     return null;
                                   },
                                   decoration: InputDecoration(
-                                      hintText: 'Không được chọn',
-                                      labelStyle: TextStyle(color: Colors.grey),
-                                      enabledBorder: UnderlineInputBorder(
-                                          borderSide: BorderSide(
-                                              color: Colors.grey[300]
-                                          )
-                                      )
+                                    hintText: 'Chưa chọn',
+                                    //Item code
+                                    labelStyle:
+                                    TextStyle(color: Colors.grey),
+                                    enabledBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Colors.grey[300],
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -431,17 +461,16 @@ class _EditViewProductState extends State<EditViewProduct> {
                               icon: Icon(Icons.edit_outlined),
                               onPressed: () {
                                 showDialog(
-                                  context: context,
-                                  builder: (BuildContext context){
-                                    return SubCategoryList();
-                                  },
-                                ).whenComplete(() {
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return SubCategoryList();
+                                    }).whenComplete(() {
                                   setState(() {
                                     _subCategoryTextController.text = _provider.selectedSubCategory;
                                   });
                                 });
                               },
-                            ),
+                            )
                           ],
                         ),
                       ),
@@ -449,8 +478,13 @@ class _EditViewProductState extends State<EditViewProduct> {
                     Container(
                       child: Row(
                         children: [
-                          Text('Bộ sưu tập', style: TextStyle(color: Colors.grey),),
-                          SizedBox(width: 10,),
+                          Text(
+                            'Collection',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
                           DropdownButton<String>(
                             hint: Text('Chọn bộ sưu tập'),
                             value: dropdownValue,
@@ -460,25 +494,26 @@ class _EditViewProductState extends State<EditViewProduct> {
                                 dropdownValue = value;
                               });
                             },
-                            items: _collections.map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                          )
+                            items: _collections
+                                .map<DropdownMenuItem<String>>(
+                                    (String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
+                          ),
                         ],
                       ),
                     ),
                     Row(
                       children: [
-                        Text('Lưu trữ: '),
+                        Text('Tích trữ: '),
                         Expanded(
                           child: TextFormField(
                             decoration: InputDecoration(
                                 contentPadding: EdgeInsets.zero,
-                                border: InputBorder.none
-                            ),
+                                border: InputBorder.none),
                             controller: _stockTextController,
                             style: TextStyle(color: Colors.grey),
                           ),
@@ -487,13 +522,12 @@ class _EditViewProductState extends State<EditViewProduct> {
                     ),
                     Row(
                       children: [
-                        Text('Hàng sắp hết: '),
+                        Text('Hàng còn lại: '),
                         Expanded(
                           child: TextFormField(
                             decoration: InputDecoration(
                                 contentPadding: EdgeInsets.zero,
-                                border: InputBorder.none
-                            ),
+                                border: InputBorder.none),
                             controller: _lowStockTextController,
                             style: TextStyle(color: Colors.grey),
                           ),
@@ -502,13 +536,12 @@ class _EditViewProductState extends State<EditViewProduct> {
                     ),
                     Row(
                       children: [
-                        Text('Thuế (%):  '),
+                        Text('Thuế (%):'),
                         Expanded(
                           child: TextFormField(
                             decoration: InputDecoration(
                                 contentPadding: EdgeInsets.zero,
-                                border: InputBorder.none
-                            ),
+                                border: InputBorder.none),
                             controller: _taxTextController,
                             style: TextStyle(color: Colors.grey),
                           ),
@@ -526,3 +559,6 @@ class _EditViewProductState extends State<EditViewProduct> {
     );
   }
 }
+
+
+

@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 
 class ResetPassword extends StatefulWidget {
   static const String id = 'reset-screen';
-
   @override
   _ResetPasswordState createState() => _ResetPasswordState();
 }
@@ -29,40 +28,40 @@ class _ResetPasswordState extends State<ResetPassword> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset('images/forgot.png', height: 250,),
+                Image.asset('images/forgot.png',height: 250,),
                 SizedBox(height: 20,),
                 RichText(text: TextSpan(
-                  text: '',
-                  children: [
-                    TextSpan(
-                      text: 'Quên mật khẩu',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
-                      )
-                    ),
-                    TextSpan(
-                      text: 'Đừng lo lắng! Nhập lại email đăng kí. Chúng tôi sẽ gửi bạn 1 email để lấy lại mật khẩu',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.red,
-                        )
-                    ),
-                  ]
+                    text: '',
+                    children: [
+                      TextSpan(
+                          text: 'Quên mât khẩu ' ,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
+                      ),
+                      TextSpan(
+                          text : 'Đừng lo lắng! Nhập lại email đăng kí. Chúng tôi sẽ gửi bạn 1 email để lấy lại mật khẩu',
+                          style :TextStyle(
+                            color: Colors.red,
+                            fontSize: 12,
+                          ),
+                      ),
+                    ]
                 ),),
                 SizedBox(height: 10,),
                 TextFormField(
                   controller: _emailTextController,
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Vui lòng nhập Email';
+                  validator: (value){
+                    if(value.isEmpty){
+                      return 'Vui lòng nhâp Email';
                     }
                     final bool _isValid = EmailValidator.validate(_emailTextController.text);
-                    if (!_isValid) {
-                      return 'Email không đúng định dạng';
+                    if(!_isValid){
+                      return 'Định dạng email không hợp lệ ';
                     }
                     setState(() {
-                      email = value;
+                      email=value;
                     });
                     return null;
                   },
@@ -72,10 +71,8 @@ class _ResetPasswordState extends State<ResetPassword> {
                     hintText: 'Email',
                     prefixIcon: Icon(Icons.email_outlined),
                     focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Theme.of(context).primaryColor,
-                          width: 2,
-                        )
+                      borderSide: BorderSide(
+                          color: Theme.of(context).primaryColor, width: 2),
                     ),
                     focusColor: Theme.of(context).primaryColor,
                   ),
@@ -85,27 +82,24 @@ class _ResetPasswordState extends State<ResetPassword> {
                   children: [
                     Expanded(
                       child: FlatButton(
-                        color: Theme.of(context).primaryColor,
-                        onPressed: () {
-                          if (_formKey.currentState.validate()) {
+                        onPressed: (){
+                          if(_formKey.currentState.validate()){
                             setState(() {
-                              _loading = true;
+                              _loading=true;
                             });
                             _authData.resetPassword(email);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Chúng tôi đã gửi vào ${_emailTextController.text}. Vui lòng kiểm tra'))
+                                SnackBar(content: Text(
+                                    'Vui lòng kiểm tra Email ${_emailTextController.text}'),
+                                ),
                             );
                           }
                           Navigator.pushReplacementNamed(context, LoginScreen.id);
                         },
-
-                        child: _loading ? LinearProgressIndicator() : Text(
-                          'Lấy lại mật khẩu',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        color: Theme.of(context).primaryColor,
+                        child: _loading
+                            ? LinearProgressIndicator()
+                            : Text('Reset Password',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
                       ),
                     ),
                   ],

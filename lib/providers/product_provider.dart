@@ -1,13 +1,11 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 
-class ProductProvider with ChangeNotifier{
+class ProductProvider with ChangeNotifier {
   String selectedCategory;
   String selectedSubCategory;
   String categoryImage;
@@ -16,33 +14,37 @@ class ProductProvider with ChangeNotifier{
   String shopName;
   String productUrl;
 
-  selectCategory(mainCategory, categoryImage){
+  selectCategory(mainCategory,categoryImage) {
     this.selectedCategory = mainCategory;
     this.categoryImage = categoryImage;
     notifyListeners();
   }
 
-  selectSubCategory(selected){
+  selectSubCategory(selected) {
     this.selectedSubCategory = selected;
     notifyListeners();
   }
 
-  getShopName(shopName) {
+  getShopName(shopName){
     this.shopName = shopName;
     notifyListeners();
   }
 
-  resetProvider() {
+  //-----------Reset Data-------------
+  resetProvider(){
     this.selectedCategory = null;
     this.selectedSubCategory = null;
     this.categoryImage = null;
-    this.image = null;
+    this.image=null;
     this.productUrl = null;
     notifyListeners();
   }
+  //-----------Reset Data-------------
 
+
+  //--------------------Upload product image----------------------------
   Future<String> uploadProductImage(filePath, productName) async {
-    File file = File(filePath);
+    File file = File(filePath); //Đường dẫn tệp tải lên
     var timeStamp = Timestamp.now().millisecondsSinceEpoch;
 
     FirebaseStorage _storage = FirebaseStorage.instance;
@@ -50,137 +52,129 @@ class ProductProvider with ChangeNotifier{
     try {
       await _storage.ref('productImage/${this.shopName}/$productName$timeStamp').putFile(file);
     } on FirebaseException catch (e) {
-      // e.g, e.code == 'canceled'
       print(e.code);
     }
-
+    //Sau khi tải tệp lên, cần đến đường dẫn url của tệp để lưu vào DB
     String downloadURL = await _storage
         .ref('productImage/${this.shopName}/$productName$timeStamp').getDownloadURL();
     this.productUrl = downloadURL;
     notifyListeners();
     return downloadURL;
   }
+  //--------------------Upload product image----------------------------
 
+
+  //--------------------Get product image----------------------------
   Future<File> getProductImage() async {
     final picker = ImagePicker();
-    final pickedFile = await picker.getImage(source: ImageSource.gallery, imageQuality: 20);
+    final pickedFile = await picker.getImage(
+        source: ImageSource.gallery, imageQuality: 20);
     if (pickedFile != null) {
       this.image = File(pickedFile.path);
       notifyListeners();
     } else {
-      this.pickerError = 'Chưa chọn hình ảnh';
+      this.pickerError = 'Không có ảnh nào được chọn.';
+      print('Không có ảnh nào được chọn.');
       notifyListeners();
     }
     return this.image;
   }
+  //--------------------Get product image----------------------------
 
-  aleftDialog({context, title, content}) {
-    showCupertinoDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: Text(title),
-          content: Text(content),
-          actions: [
-            CupertinoDialogAction(child: Text('OK'), onPressed: () {
-              Navigator.pop(context);
-            },),
-          ],
-        );
-      },
-    );
+
+  //----------------------------Dialog---------------------------------
+  alertDialog({context, title, content}) {
+    showCupertinoDialog(context: context, builder: (BuildContext context){
+      return CupertinoAlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          CupertinoDialogAction(child: Text('OK'),onPressed: (){
+            Navigator.pop(context);
+          },),
+        ],
+      );
+    });
   }
+  //----------------------------Dialog---------------------------------
 
 
-  //save product data to firestore
-  Future<void> saveProductDataToDb({productName, description, price, comparedPrice, collection, brand, sku, weight, tax, stockQty, lowStockQty, context}){
-    var timeStamp = DateTime.now().millisecondsSinceEpoch;
+  //----------------------Save product data to firestore----------------------
+  Future<void>saveProductDataToDb({productName, description, price, comparedPrice, collection, brand, sku, weight, tax, stockQty, lowStockQty, context}){
+    var timeStamp = DateTime.now().microsecondsSinceEpoch; //dùng làm ID sản phẩm
     User user = FirebaseAuth.instance.currentUser;
-
-    CollectionReference _product = FirebaseFirestore.instance.collection('products');
+    CollectionReference _products = FirebaseFirestore.instance.collection('products');
     try{
-      _product.doc(timeStamp.toString()).set({
-        'seller' : {'shopName' : this.shopName, 'sellerUid' : user.uid},
+      _products.doc(timeStamp.toString()).set({
+        'seller' : {'shopName' : this.shopName,'sellerUid' :user.uid },
         'productName' : productName,
         'description' : description,
-        'price' : price,
+        'price':price,
         'comparedPrice' : comparedPrice,
         'collection' : collection,
         'brand' : brand,
         'sku' : sku,
-        'category' : {'mainCategory' : this.selectedCategory, 'subCategory' : this.selectedSubCategory, 'categoryImage' : this.categoryImage},
+        'category' : {'mainCategory' : this.selectedCategory,'subCategory' : this.selectedSubCategory,'categoryImage' : this.categoryImage},
         'weight' : weight,
         'tax' : tax,
-        'stockQty' : stockQty,
+        'stockQty':stockQty,
         'lowStockQty' : lowStockQty,
         'published' : false,
         'productId' : timeStamp.toString(),
         'productImage' : this.productUrl
       });
-      this.aleftDialog(
+      this.alertDialog(
         context: context,
-        title: 'Lưu dữ liệu',
-        content: 'Chi tiết sản phẩm lưu thành công'
+        title: 'LƯU DỮ LIỆU',
+        content: 'Lưu thành công chi tiết sản phẩm!',
       );
-    } catch(e) {
-      this.aleftDialog(
+    }catch(e){
+      this.alertDialog(
           context: context,
-          title: 'Lưu dữ liệu',
+          title: 'LƯU DỮ LIỆU',
           content: '${e.toString()}'
       );
+
     }
     return null;
   }
+  //----------------------Save product data to firestore----------------------
 
 
-  Future<void> updateProduct({
-    productName,
-    description,
-    price,
-    comparedPrice,
-    collection,
-    brand,
-    sku,
-    weight,
-    tax,
-    stockQty,
-    lowStockQty,
-    context,
-    productId,
-    image,
-    category,
-    subCategory,
-    categoryImage}  ){
-    CollectionReference _product = FirebaseFirestore.instance.collection('products');
-
+  //--------------------Update product data to firestore----------------------
+  Future<void>updateProduct({productName, description, price, comparedPrice, collection, brand, sku, weight, tax, stockQty, lowStockQty, context, productId, image, category, subCategory, categoryImage,}){
+    CollectionReference _products = FirebaseFirestore.instance.collection('products');
     try{
-      _product.doc(productId).update({
+      _products.doc(productId).update({
         'productName' : productName,
         'description' : description,
-        'price' : price,
+        'price':price,
         'comparedPrice' : comparedPrice,
         'collection' : collection,
         'brand' : brand,
         'sku' : sku,
-        'category' : {'mainCategory' :category, 'subCategory' : subCategory, 'categoryImage' : this.categoryImage == null ? categoryImage : this.categoryImage},
+        'category' : {'mainCategory' : category,'subCategory' : subCategory,'categoryImage' : this.categoryImage ==null ? categoryImage : this.categoryImage},
         'weight' : weight,
         'tax' : tax,
-        'stockQty' : stockQty,
+        'stockQty':stockQty,
         'lowStockQty' : lowStockQty,
-        'productImage' : this.productUrl == null ? image : this.productUrl
+        'productImage' : this.productUrl ==null ? image : this.productUrl
       });
-      this.aleftDialog(
-          context: context,
-          title: 'Lưu dữ liệu',
-          content: 'Chi tiết sản phẩm lưu thành công'
+      this.alertDialog(
+        context: context,
+        title: 'LƯU DỮ LIỆU',
+        content: 'Lưu thành công chi tiết sản phẩm!',
       );
-    } catch(e) {
-      this.aleftDialog(
+    }catch(e){
+      this.alertDialog(
           context: context,
-          title: 'Lưu dữ liệu',
+          title: 'LƯU DỮ LIỆU',
           content: '${e.toString()}'
       );
+
     }
     return null;
   }
+  //--------------------Update product data to firestore----------------------
+
 }

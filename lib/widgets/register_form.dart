@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -23,33 +22,30 @@ class _RegisterFormState extends State<RegisterForm> {
   String email;
   String password;
   String shopName;
-  String mobie;
+  String mobile;
   bool _isLoading = false;
 
   Future<String> uploadFile(filePath) async {
     File file = File(filePath);
+
     FirebaseStorage _storage = FirebaseStorage.instance;
 
     try {
       await _storage.ref('uploads/shopProfilePic/${_nameTextController.text}').putFile(file);
     } on FirebaseException catch (e) {
-      // e.g, e.code == 'canceled'
       print(e.code);
     }
 
-    String downloadURL = await _storage
-        .ref('uploads/shopProfilePic/${_nameTextController.text}')
-        .getDownloadURL();
+    //Sau khi tải tệp lên, cần đến đường dẫn url của tệp để lưu trong DB
+    String downloadURL = await _storage.ref('uploads/shopProfilePic/${_nameTextController.text}').getDownloadURL();
     return downloadURL;
   }
 
   @override
   Widget build(BuildContext context) {
     final _authData = Provider.of<AuthProvider>(context);
-    scaffodMessage(message) {
-      return ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message))
-      );
+    scaffoldMessage(message){
+      return ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
     }
 
     return _isLoading ? CircularProgressIndicator(
@@ -62,27 +58,27 @@ class _RegisterFormState extends State<RegisterForm> {
             padding: const EdgeInsets.all(3.0),
             child: TextFormField(
               validator: (value) {
-                if (value.isEmpty){
-                  return 'Vui lòng nhập tên Shop';
+                if (value.isEmpty) {
+                  return 'Vui lòng nhập tên shop';
                 }
                 setState(() {
-                  _nameTextController.text = value;
+                  _nameTextController.text=value;
                 });
                 setState(() {
-                  shopName = value;
+                  shopName=value;
                 });
                 return null;
               },
               decoration: InputDecoration(
                 prefixIcon: Icon(Icons.add_business),
-                labelText: 'Tên doanh nghiệp',
+                labelText: 'Tên cửa hàng',
                 contentPadding: EdgeInsets.zero,
                 enabledBorder: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    width: 2,
-                    color: Theme.of(context).primaryColor,
-                  )
+                    borderSide: BorderSide(
+                      width: 2,
+                      color: Theme.of(context).primaryColor,
+                    ),
                 ),
                 focusColor: Theme.of(context).primaryColor,
               ),
@@ -91,14 +87,14 @@ class _RegisterFormState extends State<RegisterForm> {
           Padding(
             padding: const EdgeInsets.all(3.0),
             child: TextFormField(
-              maxLength: 10,
               keyboardType: TextInputType.phone,
+              maxLength: 10, //Số điện thoại 10 số
               validator: (value) {
-                if (value.isEmpty){
+                if (value.isEmpty) {
                   return 'Vui lòng nhập số điện thoại';
                 }
                 setState(() {
-                  mobie = value;
+                  mobile=value;
                 });
                 return null;
               },
@@ -109,10 +105,10 @@ class _RegisterFormState extends State<RegisterForm> {
                 contentPadding: EdgeInsets.zero,
                 enabledBorder: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      width: 2,
-                      color: Theme.of(context).primaryColor,
-                    )
+                  borderSide: BorderSide(
+                    width: 2,
+                    color: Theme.of(context).primaryColor,
+                  ),
                 ),
                 focusColor: Theme.of(context).primaryColor,
               ),
@@ -124,15 +120,15 @@ class _RegisterFormState extends State<RegisterForm> {
               controller: _emailTextController,
               keyboardType: TextInputType.emailAddress,
               validator: (value) {
-                if (value.isEmpty){
+                if (value.isEmpty) {
                   return 'Vui lòng nhập Email';
                 }
                 final bool _isValid = EmailValidator.validate(_emailTextController.text);
-                if (!_isValid) {
+                if(!_isValid){
                   return 'Email không đúng định dạng';
                 }
                 setState(() {
-                  email = value;
+                  email=value;
                 });
                 return null;
               },
@@ -142,10 +138,10 @@ class _RegisterFormState extends State<RegisterForm> {
                 contentPadding: EdgeInsets.zero,
                 enabledBorder: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      width: 2,
-                      color: Theme.of(context).primaryColor,
-                    )
+                  borderSide: BorderSide(
+                    width: 2,
+                    color: Theme.of(context).primaryColor,
+                  ),
                 ),
                 focusColor: Theme.of(context).primaryColor,
               ),
@@ -156,14 +152,14 @@ class _RegisterFormState extends State<RegisterForm> {
             child: TextFormField(
               obscureText: true,
               validator: (value) {
-                if (value.isEmpty){
+                if (value.isEmpty) {
                   return 'Vui lòng nhập mật khẩu';
                 }
-                if (value.length < 6) {
-                  return 'Mật khẩu quá ngắn';
+                if(value.length < 6){
+                  return 'Mật khẩu tối đa 6 ký tự';
                 }
                 setState(() {
-                  password = value;
+                  password=value;
                 });
                 return null;
               },
@@ -173,38 +169,42 @@ class _RegisterFormState extends State<RegisterForm> {
                 contentPadding: EdgeInsets.zero,
                 enabledBorder: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      width: 2,
-                      color: Theme.of(context).primaryColor,
-                    )
+                  borderSide: BorderSide(
+                    width: 2,
+                    color: Theme.of(context).primaryColor,
+                  ),
                 ),
                 focusColor: Theme.of(context).primaryColor,
               ),
             ),
           ),
+
           Padding(
             padding: const EdgeInsets.all(3.0),
             child: TextFormField(
               obscureText: true,
               validator: (value) {
-                if (value.isEmpty){
+                if (value.isEmpty) {
                   return 'Vui lòng xác nhận mật khẩu';
                 }
-                if (_passwordTextController.text != _cPasswordTextController.text) {
+                if(value.length < 6){
+                  return 'Mật khẩu tối đa 6 ký tự';
+                }
+                if(_passwordTextController.text != _cPasswordTextController.text){
                   return 'Mật khẩu xác nhận không đúng';
                 }
                 return null;
               },
               decoration: InputDecoration(
                 prefixIcon: Icon(Icons.vpn_key_outlined),
-                labelText: 'Xác nhận Mật khẩu',
+                labelText: 'Xác nhận mật khẩu',
                 contentPadding: EdgeInsets.zero,
                 enabledBorder: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      width: 2,
-                      color: Theme.of(context).primaryColor,
-                    )
+                  borderSide: BorderSide(
+                    width: 2,
+                    color: Theme.of(context).primaryColor,
+                  ),
                 ),
                 focusColor: Theme.of(context).primaryColor,
               ),
@@ -213,43 +213,42 @@ class _RegisterFormState extends State<RegisterForm> {
           Padding(
             padding: const EdgeInsets.all(3.0),
             child: TextFormField(
-              maxLines: 5,
+              maxLines: 6,
               controller: _addressTextController,
               validator: (value) {
-                if (value.isEmpty){
-                  return 'Vui lòng nhấn nút điều hướng';
+                if (value.isEmpty) {
+                  return 'Vui lòng nhấn nút điều hướng ';
                 }
-                if (_authData.shopLatitude == null) {
+                if(_authData.shopLatitude==null){
                   return 'Vui lòng nhấn nút điều hướng';
                 }
                 return null;
               },
               decoration: InputDecoration(
                 prefixIcon: Icon(Icons.contact_mail_outlined),
-                labelText: 'Địa chỉ doanh nghiệp',
+                labelText: 'Địa chỉ Shop',
                 suffixIcon: IconButton(
                   icon: Icon(Icons.location_searching),
-                  onPressed: () {
-                    _addressTextController.text = 'Đang định vị...\n Vui lòng đợi!';
-                    _authData.getCurrentAddress().then((address) {
-                      if (address != null) {
+                  onPressed: (){
+                    _addressTextController.text='Đang định vị...\n Vui lòng đợi...';
+                    _authData.getCurrentAddress().then((address){
+                      if(address!=null){
                         setState(() {
-                          _addressTextController.text = '${_authData.placeName}\n${_authData.shopAddress}';
+                          _addressTextController.text='${_authData.placeName}\n${_authData.shopAddress}';
                         });
-                      } else {
+                      }else{
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Không tìm thấy địa chỉ. Hãy thử lại'))
-                        );
+                          SnackBar(content: Text('Không tìm thấ địa chỉ. Vui lòng thử lại',),),);
                       }
                     });
                   },
                 ),
                 enabledBorder: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      width: 2,
-                      color: Theme.of(context).primaryColor,
-                    )
+                  borderSide: BorderSide(
+                    width: 2,
+                    color: Theme.of(context).primaryColor,
+                  ),
                 ),
                 focusColor: Theme.of(context).primaryColor,
               ),
@@ -258,8 +257,8 @@ class _RegisterFormState extends State<RegisterForm> {
           Padding(
             padding: const EdgeInsets.all(3.0),
             child: TextFormField(
-              onChanged: (value) {
-                _dialogTextController.text = value;
+              onChanged: (value){
+                _dialogTextController.text=value;
               },
               decoration: InputDecoration(
                 prefixIcon: Icon(Icons.comment),
@@ -267,10 +266,10 @@ class _RegisterFormState extends State<RegisterForm> {
                 contentPadding: EdgeInsets.zero,
                 enabledBorder: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      width: 2,
-                      color: Theme.of(context).primaryColor,
-                    )
+                  borderSide: BorderSide(
+                    width: 2,
+                    color: Theme.of(context).primaryColor,
+                  ),
                 ),
                 focusColor: Theme.of(context).primaryColor,
               ),
@@ -283,38 +282,40 @@ class _RegisterFormState extends State<RegisterForm> {
                 child: FlatButton(
                   color: Theme.of(context).primaryColor,
                   onPressed: () {
-                    if (_authData.isPicAvail == true) {
-                      if (_formKey.currentState.validate()) {
+                    if(_authData.isPicAvail == true){ //Đầu tiên sẽ xác nhận ảnh hồ sơ
+                      if (_formKey.currentState.validate()) { // Sau đó sẽ xác thực các form
                         setState(() {
-                          _isLoading = true;
+                          _isLoading=true;
                         });
                         _authData.registerVendor(email, password).then((credential){
-                          if (credential.user.uid != null) {
-                            uploadFile(_authData.image.path).then((url) {
-                              if (url != null) {
-                                //save vendor details to database
-                                _authData.saveVendorDataTodb(
+                          if(credential.user.uid != null){
+                            //người dùng đã đăng kí
+                            //Tải ảnh hồ sơ lên Firestore
+                            uploadFile(_authData.image.path).then((url){
+                              if(url != null){
+                                //Lưu mô tả shop vào DB
+                                _authData.saveVendorDataToDb(
                                   url: url,
-                                  mobie: mobie,
+                                  mobile: mobile,
                                   shopName: shopName,
                                   dialog: _dialogTextController.text,
                                 );
                                 setState(() {
-                                  _isLoading = false;
+                                  _isLoading=false;
                                 });
                                 Navigator.pushReplacementNamed(context, HomeScreen.id);
-                              } else {
-                                scaffodMessage('Tải ảnh thất bại');
+                              }else{
+                                scaffoldMessage('Tải ảnh hồ sơ thất bại');
                               }
                             });
-                          } else {
-                            //register failed
-                            scaffodMessage(_authData.error);
+                          }else{
+                            //Đăng kí thất bại
+                            scaffoldMessage(_authData.error);
                           }
                         });
                       }
-                    } else {
-                      scaffodMessage('Cần thêm ảnh hồ sơ');
+                    }else{
+                      scaffoldMessage('Cần thêm ảnh hồ sơ shop');
                     }
                   },
                   child: Text(
@@ -326,7 +327,7 @@ class _RegisterFormState extends State<RegisterForm> {
                 ),
               ),
             ],
-          ),
+          )
         ],
       ),
     );

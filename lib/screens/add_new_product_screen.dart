@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:grocery_vendor_app_flutter/providers/product_provider.dart';
@@ -14,11 +13,10 @@ class AddNewProduct extends StatefulWidget {
 }
 
 class _AddNewProductState extends State<AddNewProduct> {
-
   final _formKey = GlobalKey<FormState>();
 
   List<String> _collections = [
-    'Sản phẩm đặc trưng',
+    'Sản phẩm nổi bật',
     'Bán chạy nhất',
     'Được thêm gần đây'
   ];
@@ -32,7 +30,7 @@ class _AddNewProductState extends State<AddNewProduct> {
   var _stockTextController = TextEditingController();
   File _image;
   bool _visible = false;
-  bool _track = false;
+  bool _track=false;
 
   String productName;
   String description;
@@ -44,7 +42,6 @@ class _AddNewProductState extends State<AddNewProduct> {
 
   @override
   Widget build(BuildContext context) {
-
     var _provider = Provider.of<ProductProvider>(context);
 
     return DefaultTabController(
@@ -71,35 +68,43 @@ class _AddNewProductState extends State<AddNewProduct> {
                       ),
                       FlatButton.icon(
                         color: Theme.of(context).primaryColor,
-                        icon: Icon(Icons.save, color: Colors.white),
-                        label: Text('Lưu', style: TextStyle(color: Colors.white),),
+                        icon: Icon(
+                          Icons.save,
+                          color: Colors.white,
+                        ),
+                        label: Text(
+                          'Lưu',
+                          style: TextStyle(color: Colors.white),
+                        ),
                         onPressed: () {
-                          if (_formKey.currentState.validate()){
-                            if (_categoryTextController.text.isNotEmpty){
-                              if (_subCategoryTextController.text.isNotEmpty){
-                                if (_image != null){
+                          if(_formKey.currentState.validate()){
+                            //chỉ khi điền trường cần thiết
+                            if(_categoryTextController.text.isNotEmpty){
+                              if(_subCategoryTextController.text.isNotEmpty){
+                                if(_image!=null){
+                                  //upload ảnh lên storage
                                   EasyLoading.show(status: 'Đang lưu...');
-                                  _provider.uploadProductImage(_image.path, productName).then((url) {
-                                    if (url != null){
-                                      //upload profuct data to firestore
+                                  _provider.uploadProductImage(_image.path, productName).then((url){
+                                    if(url!=null){
+                                      //upload dữ liệu sản phẩm lên firestore
                                       EasyLoading.dismiss();
                                       _provider.saveProductDataToDb(
-                                        context: context,
-                                        comparedPrice: int.parse(_comparedPriceTextController.text),
-                                        brand: _brandTextController.text,
-                                        collection: dropdownValue,
-                                        description: description,
-                                        lowStockQty: int.parse(_lowStockTextController.text),
-                                        price: price,
-                                        sku: sku,
-                                        stockQty: int.parse(_stockTextController.text),
-                                        tax: tax,
-                                        weight: weight,
-                                        productName: productName,
+                                          context: context,
+                                          comparedPrice: int.parse(_comparedPriceTextController.text),
+                                          brand: _brandTextController.text,
+                                          collection: dropdownValue,
+                                          description: description,
+                                          lowStockQty: int.parse(_lowStockTextController.text),
+                                          price: price,
+                                          sku: sku,
+                                          stockQty: int.parse(_stockTextController.text),
+                                          tax: tax,
+                                          weight: weight,
+                                          productName: productName
                                       );
 
+                                      // xóa tất cả giá trị hiện có sau khi sản phẩm được lưu
                                       setState(() {
-                                        //clear after save
                                         _formKey.currentState.reset();
                                         _comparedPriceTextController.clear();
                                         dropdownValue = null;
@@ -108,36 +113,41 @@ class _AddNewProductState extends State<AddNewProduct> {
                                         _brandTextController.clear();
                                         _track = false;
                                         _image = null;
-                                        _visible = false;
+                                        _visible=false;
                                       });
 
-                                    } else {
-                                      _provider.aleftDialog(
+                                    }else{
+                                      //Upload thất bại
+                                      _provider.alertDialog(
                                         context: context,
-                                        title: 'Upload hình ảnh',
-                                        content: 'Upload thất bại',
+                                        title: 'TẢI ẢNH LÊN',
+                                        content: 'Tải ảnh sản phẩm thất bại',
                                       );
                                     }
                                   });
+
                                 }else{
-                                  _provider.aleftDialog(
+                                  //image not selected
+                                  _provider.alertDialog(
                                     context: context,
-                                    title: 'Hình ảnh sản phẩm',
-                                    content: 'Chưa chọn hình ảnh',
+                                    title: 'ẢNH SẢN PHẨM',
+                                    content: 'Ảnh sản phẩm chưa được chọn',
                                   );
                                 }
+
                               }else{
-                                _provider.aleftDialog(
+                                _provider.alertDialog(
                                     context: context,
                                     title: 'Danh mục phụ',
                                     content: 'Danh mục phụ chưa được chọn'
                                 );
+
                               }
                             }else{
-                              _provider.aleftDialog(
-                                context: context,
-                                title: 'Danh mục chính',
-                                content: 'Danh mục chính chưa được chọn'
+                              _provider.alertDialog(
+                                  context: context,
+                                  title: 'Danh mục chính',
+                                  content: 'Danh mục chính chưa được chọn'
                               );
                             }
                           }
@@ -148,13 +158,17 @@ class _AddNewProductState extends State<AddNewProduct> {
                 ),
               ),
               TabBar(
-                  indicatorColor: Theme.of(context).primaryColor,
-                  labelColor: Theme.of(context).primaryColor,
-                  unselectedLabelColor: Colors.black54,
-                  tabs: [
-                    Tab(text: 'Chung',),
-                    Tab(text: 'Tồn kho',)
-                  ]
+                indicatorColor: Theme.of(context).primaryColor,
+                labelColor: Theme.of(context).primaryColor,
+                unselectedLabelColor: Colors.black54,
+                tabs: [
+                  Tab(
+                    text: 'CHUNG',
+                  ),
+                  Tab(
+                    text: 'TỒN KHO',
+                  ),
+                ],
               ),
               Expanded(
                 child: Padding(
@@ -169,9 +183,9 @@ class _AddNewProductState extends State<AddNewProduct> {
                               child: Column(
                                 children: [
                                   TextFormField(
-                                    validator: (value) {
-                                      if (value.isEmpty){
-                                        return 'Vui lòng nhập tên sản phẩm';
+                                    validator: (value){
+                                      if(value.isEmpty){
+                                        return  'Vui lòng nhập tên sản phẩm';
                                       }
                                       setState(() {
                                         productName = value;
@@ -183,18 +197,19 @@ class _AddNewProductState extends State<AddNewProduct> {
                                       labelStyle: TextStyle(color: Colors.grey),
                                       enabledBorder: UnderlineInputBorder(
                                         borderSide: BorderSide(
-                                          color: Colors.grey[300]
-                                        )
-                                      )
+                                          color: Colors.grey[300],
+                                        ),
+                                      ),
                                     ),
                                   ),
+
                                   TextFormField(
                                     keyboardType: TextInputType.multiline,
                                     maxLines: 5,
                                     maxLength: 500,
-                                    validator: (value) {
-                                      if (value.isEmpty){
-                                        return 'Vui lòng nhập mô tả sản phẩm';
+                                    validator: (value){
+                                      if(value.isEmpty){
+                                        return  'Vui lòng nhập mô tả';
                                       }
                                       setState(() {
                                         description = value;
@@ -202,15 +217,16 @@ class _AddNewProductState extends State<AddNewProduct> {
                                       return null;
                                     },
                                     decoration: InputDecoration(
-                                        labelText: 'Thông tin sản phẩm*',
-                                        labelStyle: TextStyle(color: Colors.grey),
-                                        enabledBorder: UnderlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.grey[300]
-                                            )
-                                        )
+                                      labelText: 'Thông tin sản phẩm*',
+                                      labelStyle: TextStyle(color: Colors.grey),
+                                      enabledBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Colors.grey[300],
+                                        ),
+                                      ),
                                     ),
                                   ),
+
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: InkWell(
@@ -226,16 +242,19 @@ class _AddNewProductState extends State<AddNewProduct> {
                                         height: 150,
                                         child: Card(
                                           child: Center(
-                                            child: _image == null ? Text('Chọn hình ảnh') : Image.file(_image),
+                                            child: _image == null
+                                                ? Text('Chọn ảnh')
+                                                : Image.file(_image),
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
+
                                   TextFormField(
-                                    validator: (value) {
-                                      if (value.isEmpty){
-                                        return 'Vui lòng nhập giá sản phẩm';
+                                    validator: (value){
+                                      if(value.isEmpty){
+                                        return  'Vui lòng nhập giá bán';
                                       }
                                       setState(() {
                                         price = double.parse(value);
@@ -244,44 +263,50 @@ class _AddNewProductState extends State<AddNewProduct> {
                                     },
                                     keyboardType: TextInputType.number,
                                     decoration: InputDecoration(
-                                        labelText: 'Giá*',
-                                        labelStyle: TextStyle(color: Colors.grey),
-                                        enabledBorder: UnderlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.grey[300]
-                                            )
-                                        )
+                                      labelText: 'Giá*', //Giá bán cuối
+                                      labelStyle: TextStyle(color: Colors.grey),
+                                      enabledBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Colors.grey[300],
+                                        ),
+                                      ),
                                     ),
                                   ),
+
                                   TextFormField(
                                     controller: _comparedPriceTextController,
-                                    validator: (value) {
-                                      if (price > double.parse(value)) {
-                                        return 'Giá khuyến mãi nên thấp hơn giá so sánh';
+                                    validator: (value){
+                                      //Không bắt buộc
+                                      if(price > double.parse(value)) { //Gía so sánh phải cao hơn
+                                        return 'Giá so sánh nên cao hơn giá ra thị trường';
                                       }
-                                      setState(() {
-                                        comparedPrice = double.parse(value);
-                                      });
                                       return null;
                                     },
                                     keyboardType: TextInputType.number,
                                     decoration: InputDecoration(
-                                        labelText: 'Giá cả so sánh*',
-                                        labelStyle: TextStyle(color: Colors.grey),
-                                        enabledBorder: UnderlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.grey[300]
-                                            )
-                                        )
+                                      labelText: 'Giá so sánh ',
+                                      //Price before discount
+                                      labelStyle: TextStyle(color: Colors.grey),
+                                      enabledBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Colors.grey[300],
+                                        ),
+                                      ),
                                     ),
                                   ),
+
                                   Container(
                                     child: Row(
                                       children: [
-                                        Text('Bộ sưu tập', style: TextStyle(color: Colors.grey),),
-                                        SizedBox(width: 10,),
-                                        DropdownButton(
-                                          hint: Text('Chọn bộ sưu tập'),
+                                        Text(
+                                          'Bộ sưu tập',
+                                          style: TextStyle(color: Colors.grey),
+                                        ),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        DropdownButton<String>(
+                                          hint: Text('Chọn Bộ sưu tập'),
                                           value: dropdownValue,
                                           icon: Icon(Icons.arrow_drop_down),
                                           onChanged: (String value) {
@@ -289,31 +314,36 @@ class _AddNewProductState extends State<AddNewProduct> {
                                               dropdownValue = value;
                                             });
                                           },
-                                          items: _collections.map<DropdownMenuItem<String>>((String value) {
-                                            return DropdownMenuItem<String>(
-                                              value: value,
-                                              child: Text(value),
-                                            );
-                                          }).toList(),
-                                        )
+                                          items: _collections
+                                              .map<DropdownMenuItem<String>>(
+                                                  (String value) {
+                                                return DropdownMenuItem<String>(
+                                                  value: value,
+                                                  child: Text(value),
+                                                );
+                                              }).toList(),
+                                        ),
                                       ],
                                     ),
                                   ),
+
                                   TextFormField(
                                     controller: _brandTextController,
                                     decoration: InputDecoration(
-                                        labelText: 'Nhãn hiệu',
-                                        labelStyle: TextStyle(color: Colors.grey),
-                                        enabledBorder: UnderlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.grey[300]
-                                            )
-                                        )
+                                      //Không bắt buộc
+                                      labelText: 'Nhãn hiệu',
+                                      labelStyle: TextStyle(color: Colors.grey),
+                                      enabledBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Colors.grey[300],
+                                        ),
+                                      ),
                                     ),
                                   ),
+
                                   TextFormField(
-                                    validator: (value) {
-                                      if (value.isEmpty){
+                                    validator: (value){
+                                      if(value.isEmpty){
                                         return 'Vui lòng nhập mã sản phẩm';
                                       }
                                       setState(() {
@@ -322,46 +352,53 @@ class _AddNewProductState extends State<AddNewProduct> {
                                       return null;
                                     },
                                     decoration: InputDecoration(
-                                        labelText: 'Mã sản phẩm*',
-                                        labelStyle: TextStyle(color: Colors.grey),
-                                        enabledBorder: UnderlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.grey[300]
-                                            )
-                                        )
+                                      labelText: 'Mã sản phẩm',
+                                      labelStyle: TextStyle(color: Colors.grey),
+                                      enabledBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Colors.grey[300],
+                                        ),
+                                      ),
                                     ),
                                   ),
+
                                   Padding(
-                                    padding: const EdgeInsets.only(top: 20, bottom: 10),
+                                    padding: const EdgeInsets.only(
+                                        top: 20, bottom: 10),
                                     child: Row(
                                       children: [
                                         Text(
                                           'Danh mục',
                                           style: TextStyle(
-                                            color: Colors.grey,
-                                            fontSize: 16,
+                                              color: Colors.grey,
+                                              fontSize: 16
                                           ),
                                         ),
-                                        SizedBox(width: 10,),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
                                         Expanded(
                                           child: AbsorbPointer(
-                                            absorbing: true, //this will block user entering category name manually
+                                            absorbing: true, //Chặn người dùng nhập tên danh mục theo cách thủ công tức phải chọn
                                             child: TextFormField(
                                               controller: _categoryTextController,
-                                              validator: (value) {
-                                                if (value.isEmpty){
-                                                  return 'Vui lòng chọn tên danh mục';
+                                              validator: (value){
+                                                if(value.isEmpty){
+                                                  return 'Chọn tên danh mục';
                                                 }
                                                 return null;
                                               },
                                               decoration: InputDecoration(
-                                                  hintText: 'Không được chọn',
-                                                  labelStyle: TextStyle(color: Colors.grey),
-                                                  enabledBorder: UnderlineInputBorder(
-                                                      borderSide: BorderSide(
-                                                          color: Colors.grey[300]
-                                                      )
-                                                  )
+                                                hintText: 'Chưa chọn',
+                                                //Item code
+                                                labelStyle:
+                                                TextStyle(color: Colors.grey),
+                                                enabledBorder:
+                                                UnderlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                    color: Colors.grey[300],
+                                                  ),
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -370,51 +407,59 @@ class _AddNewProductState extends State<AddNewProduct> {
                                           icon: Icon(Icons.edit_outlined),
                                           onPressed: () {
                                             showDialog(
-                                              context: context,
-                                              builder: (BuildContext context){
-                                                return CategoryList();
-                                              },
-                                            ).whenComplete(() {
+                                                context: context,
+                                                builder: (BuildContext context) {
+                                                  return CategoryList();
+                                                }).whenComplete(() {
                                               setState(() {
                                                 _categoryTextController.text = _provider.selectedCategory;
                                                 _visible = true;
                                               });
                                             });
                                           },
-                                        ),
+                                        )
                                       ],
                                     ),
                                   ),
+
                                   Visibility(
                                     visible: _visible,
                                     child: Padding(
-                                      padding: const EdgeInsets.only(top: 10, bottom: 20),
+                                      padding: const EdgeInsets.only(
+                                          top: 10, bottom: 20),
                                       child: Row(
                                         children: [
                                           Text(
                                             'Danh mục phụ',
-                                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                                            style: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 16),
                                           ),
-                                          SizedBox(width: 10,),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
                                           Expanded(
                                             child: AbsorbPointer(
                                               absorbing: true,
                                               child: TextFormField(
                                                 controller: _subCategoryTextController,
-                                                validator: (value) {
-                                                  if (value.isEmpty){
-                                                    return 'Vui lòng chọn tên danh mục phụ';
+                                                validator: (value){
+                                                  if(value.isEmpty){
+                                                    return 'Vui lòng chọn danh mục phụ';
                                                   }
                                                   return null;
                                                 },
                                                 decoration: InputDecoration(
-                                                    hintText: 'Không được chọn',
-                                                    labelStyle: TextStyle(color: Colors.grey),
-                                                    enabledBorder: UnderlineInputBorder(
-                                                        borderSide: BorderSide(
-                                                            color: Colors.grey[300]
-                                                        )
-                                                    )
+                                                  hintText: 'Chưa chọn',
+                                                  //Item code
+                                                  labelStyle: TextStyle(
+                                                      color: Colors.grey
+                                                  ),
+                                                  enabledBorder: UnderlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                      color: Colors.grey[300],
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
                                             ),
@@ -423,25 +468,24 @@ class _AddNewProductState extends State<AddNewProduct> {
                                             icon: Icon(Icons.edit_outlined),
                                             onPressed: () {
                                               showDialog(
-                                                context: context,
-                                                builder: (BuildContext context){
-                                                  return SubCategoryList();
-                                                },
-                                              ).whenComplete(() {
+                                                  context: context,
+                                                  builder: (BuildContext context) {
+                                                    return SubCategoryList();
+                                                  }).whenComplete(() {
                                                 setState(() {
                                                   _subCategoryTextController.text = _provider.selectedSubCategory;
                                                 });
                                               });
                                             },
-                                          ),
+                                          )
                                         ],
                                       ),
                                     ),
                                   ),
                                   TextFormField(
-                                    validator: (value) {
-                                      if (value.isEmpty){
-                                        return 'Vui lòng nhập khối lượng';
+                                    validator: (value){
+                                      if(value.isEmpty){
+                                        return 'Vui lòng nhập trọng lượng sản phẩm';
                                       }
                                       setState(() {
                                         weight = value;
@@ -449,18 +493,19 @@ class _AddNewProductState extends State<AddNewProduct> {
                                       return null;
                                     },
                                     decoration: InputDecoration(
-                                        labelText: 'Khối lượng',
-                                        labelStyle: TextStyle(color: Colors.grey),
-                                        enabledBorder: UnderlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.grey[300]
-                                            )
-                                        )
+                                      labelText: 'Trọng lượng.  Vd:- Kg, gm,..',
+                                      //Item code
+                                      labelStyle: TextStyle(color: Colors.grey),
+                                      enabledBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Colors.grey[300],
+                                        ),
+                                      ),
                                     ),
                                   ),
                                   TextFormField(
-                                    validator: (value) {
-                                      if (value.isEmpty){
+                                    validator: (value){
+                                      if(value.isEmpty){
                                         return 'Vui lòng nhập thuế (%)';
                                       }
                                       setState(() {
@@ -470,18 +515,20 @@ class _AddNewProductState extends State<AddNewProduct> {
                                     },
                                     keyboardType: TextInputType.number,
                                     decoration: InputDecoration(
-                                        labelText: 'Thuế %',
-                                        labelStyle: TextStyle(color: Colors.grey),
-                                        enabledBorder: UnderlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.grey[300]
-                                            )
-                                        )
+                                      labelText: 'Thuế (%)',
+                                      labelStyle: TextStyle(
+                                        color: Colors.grey,
+                                      ),
+                                      enabledBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Colors.grey[300],
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
-                            )
+                            ),
                           ],
                         ),
                         SingleChildScrollView(
@@ -491,17 +538,16 @@ class _AddNewProductState extends State<AddNewProduct> {
                                 title: Text('Theo dõi hàng tồn kho'),
                                 activeColor: Theme.of(context).primaryColor,
                                 subtitle: Text(
-                                  'Bật để theo dõi hàng tồn kho',
+                                  'BẬT để theo dõi hàng tồn kho',
                                   style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 12,
+                                      color: Colors.grey,fontSize: 12
                                   ),
                                 ),
                                 value: _track,
-                                onChanged: (selected) {
-                                 setState(() {
-                                   _track = !_track;
-                                 });
+                                onChanged: (selected){
+                                  setState(() {
+                                    _track = !_track;
+                                  });
                                 },
                               ),
                               Visibility(
@@ -519,26 +565,27 @@ class _AddNewProductState extends State<AddNewProduct> {
                                             controller: _stockTextController,
                                             keyboardType: TextInputType.number,
                                             decoration: InputDecoration(
-                                                labelText: 'Số lượng tồn kho*',
-                                                labelStyle: TextStyle(color: Colors.grey),
-                                                enabledBorder: UnderlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                        color: Colors.grey[300]
-                                                    )
-                                                )
+                                              labelText: 'Số lượng tồn*',
+                                              labelStyle: TextStyle(color: Colors.grey),
+                                              enabledBorder: UnderlineInputBorder(
+                                                borderSide: BorderSide(
+                                                  color: Colors.grey[300],
+                                                ),
+                                              ),
                                             ),
                                           ),
-                                          TextField(
+                                          TextFormField(
+                                            //not compulsory
                                             keyboardType: TextInputType.number,
                                             controller: _lowStockTextController,
                                             decoration: InputDecoration(
-                                                labelText: 'Số lượng tồn kho sắp hết',
-                                                labelStyle: TextStyle(color: Colors.grey),
-                                                enabledBorder: UnderlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                        color: Colors.grey[300]
-                                                    )
-                                                )
+                                              labelText: 'Số lượng còn lại', //Item code
+                                              labelStyle: TextStyle(color: Colors.grey),
+                                              enabledBorder: UnderlineInputBorder(
+                                                borderSide: BorderSide(
+                                                  color: Colors.grey[300],
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ],
@@ -549,7 +596,7 @@ class _AddNewProductState extends State<AddNewProduct> {
                               )
                             ],
                           ),
-                        ),
+                        )
                       ],
                     ),
                   ),

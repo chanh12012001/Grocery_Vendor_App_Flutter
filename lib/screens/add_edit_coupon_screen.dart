@@ -5,7 +5,7 @@ import 'package:grocery_vendor_app_flutter/services/firebase_service.dart';
 import 'package:intl/intl.dart';
 
 class AddEditCoupon extends StatefulWidget {
-  static const String id = 'update-coupon';
+  static const String id ='update-coupon';
   final DocumentSnapshot document;
   AddEditCoupon({this.document});
 
@@ -23,25 +23,24 @@ class _AddEditCouponState extends State<AddEditCoupon> {
   var discountRate = TextEditingController();
   bool _active = false;
 
-  _selectDate(context) async{
+  _selectDate(context) async {
     final DateTime picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime(2050),
     );
-    if (picked != null && picked !=_selectedDate){
+    if (picked != null && picked != _selectedDate)
       setState(() {
         _selectedDate = picked;
         String formattedText = DateFormat('yyyy-MM-dd').format(_selectedDate);
         dateText.text = formattedText;
       });
-    }
   }
 
   @override
   void initState() {
-    if (widget.document != null)
+    if(widget.document!=null)
       setState(() {
         titleText.text = widget.document['title'];
         discountRate.text = widget.document['discountRate'].toString();
@@ -57,9 +56,12 @@ class _AddEditCouponState extends State<AddEditCoupon> {
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(
-          color: Colors.white
+            color: Colors.white
         ),
-        title: Text('Thêm / Chỉnh sửa mã giảm', style: TextStyle(color: Colors.white),),
+        title: Text(
+          'Thêm / Chỉnh sửa mã giảm',
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: Form(
         key: _formKey,
@@ -69,9 +71,9 @@ class _AddEditCouponState extends State<AddEditCoupon> {
             children: [
               TextFormField(
                 controller: titleText,
-                validator: (value){
-                  if (value.isEmpty){
-                    return 'Vui lòng nhập tiêu đề mã giảm giá';
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Vui lòng nhập tiêu đề mã giảm';
                   }
                   return null;
                 },
@@ -84,43 +86,42 @@ class _AddEditCouponState extends State<AddEditCoupon> {
               TextFormField(
                 controller: discountRate,
                 keyboardType: TextInputType.number,
-                validator: (value){
-                  if (value.isEmpty){
-                    return 'Vui lòng nhập giảm giá (%)';
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Vui lòng nhập tỉ lệ giảm giá (%)';
                   }
                   return null;
                 },
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.zero,
-                  labelText: 'Giảm giá (%)',
+                  labelText: 'Tỉ lệ giảm giá %',
                   labelStyle: TextStyle(color: Colors.grey),
                 ),
               ),
               TextFormField(
                 keyboardType: TextInputType.number,
                 controller: dateText,
-                validator: (value){
-                  if (value.isEmpty){
+                validator: (value) {
+                  if (value.isEmpty) {
                     return 'Vui lòng nhập ngày hết hạn';
                   }
                   return null;
                 },
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.zero,
-                  labelText: 'Ngày hết hạn',
-                  labelStyle: TextStyle(color: Colors.grey),
-                  suffixIcon: InkWell(
-                    onTap: () {
-                      _selectDate(context);
-                    },
-                    child: Icon(Icons.date_range_outlined),
-                  ),
-                ),
+                    contentPadding: EdgeInsets.zero,
+                    labelText: 'Ngày hết hạn',
+                    labelStyle: TextStyle(color: Colors.grey),
+                    suffixIcon: InkWell(
+                      onTap: () {
+                        _selectDate(context);
+                      },
+                      child: Icon(Icons.date_range_outlined),
+                    )),
               ),
               TextFormField(
                 controller: detailsText,
-                validator: (value){
-                  if (value.isEmpty){
+                validator: (value) {
+                  if (value.isEmpty) {
                     return 'Vui lòng nhập mô tả mã giảm';
                   }
                   return null;
@@ -134,23 +135,25 @@ class _AddEditCouponState extends State<AddEditCoupon> {
               SwitchListTile(
                 activeColor: Theme.of(context).primaryColor,
                 contentPadding: EdgeInsets.zero,
-                title: Text('Kích hoạt phiếu giảm giá'),
+                title: Text('Áp dụng ngay'),
                 value: _active,
-                onChanged: (bool newValue){
+                onChanged: (bool newValue) {
                   setState(() {
                     _active = !_active;
                   });
                 },
               ),
-              SizedBox(height: 20,),
+              SizedBox(
+                height: 20,
+              ),
               Row(
                 children: [
                   Expanded(
                     child: FlatButton(
                       color: Theme.of(context).primaryColor,
                       onPressed: () {
-                        if (_formKey.currentState.validate()){
-                          EasyLoading.show(status: 'Vui lòng đợi...');
+                        if(_formKey.currentState.validate()){
+                          EasyLoading.show(status: 'Vui lòng đợi..');
                           _services.saveCoupon(
                             document: widget.document,
                             title: titleText.text.toUpperCase(),
@@ -158,26 +161,31 @@ class _AddEditCouponState extends State<AddEditCoupon> {
                             discountRate: int.parse(discountRate.text),
                             expiry: _selectedDate,
                             active: _active,
-                          ).then((value){
+                          ).then((value) {
                             setState(() {
                               titleText.clear();
                               discountRate.clear();
                               detailsText.clear();
                               _active = false;
                             });
-                            EasyLoading.showSuccess('Lưu mã giảm thành công');
+                            EasyLoading.showSuccess('Lưu thành công mã giảm');
                           });
+
                         }
                       },
-                      child: Text('Submit', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                      child: Text(
+                        'Lưu',
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ],
-              ),
+              )
             ],
           ),
         ),
-      )
+      ),
     );
   }
 }

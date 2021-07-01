@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
@@ -10,27 +11,30 @@ class AuthProvider extends ChangeNotifier {
   File image;
   bool isPicAvail = false;
   String pickerError = '';
-  String error ='';
+  String error = '';
 
-  //Shop data
+  //shop data
   double shopLatitude;
   double shopLongitude;
   String shopAddress;
   String placeName;
   String email;
 
+  //-----------------------Reduce image size-----------------------------
   Future<File> getImage() async {
     final picker = ImagePicker();
-    final pickedFile = await picker.getImage(source: ImageSource.gallery, imageQuality: 20);
+    final pickedFile = await picker.getImage(source: ImageSource.gallery,imageQuality: 20);
     if (pickedFile != null) {
       this.image = File(pickedFile.path);
       notifyListeners();
     } else {
-      this.pickerError = 'Chưa chọn hình ảnh';
+      this.pickerError = 'Không có ảnh nào được chọn.';
       notifyListeners();
     }
     return this.image;
   }
+  //-----------------------Reduce image size-----------------------------
+
 
   Future getCurrentAddress() async {
     Location location = new Location();
@@ -54,7 +58,6 @@ class AuthProvider extends ChangeNotifier {
         return;
       }
     }
-
     _locationData = await location.getLocation();
     this.shopLatitude = _locationData.latitude;
     this.shopLongitude = _locationData.longitude;
@@ -69,25 +72,25 @@ class AuthProvider extends ChangeNotifier {
     return shopAddress;
   }
 
-  //registor vendor using email
-  Future<UserCredential> registerVendor(email, password) async{
+  //----------------register vendor using email----------------
+  Future<UserCredential> registerVendor(email, password) async {
     this.email = email;
     notifyListeners();
     UserCredential userCredential;
     try {
-      userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: email,
-          password: password,
+      userCredential =
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
       );
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'Mật khẩu yếu') {
-        this.error='Mật khẩu cung cấp quá yếu';
+      if (e.code == 'weak-password') {
+        this.error = 'The password provided is too weak.';
         notifyListeners();
         print('The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
-        this.error = 'Tài khoản đã tồn tại';
+        this.error = 'The account already exists for that email.';
         notifyListeners();
-        print('The account already exists for that email.');
       }
     } catch (e) {
       this.error = e.toString();
@@ -96,9 +99,11 @@ class AuthProvider extends ChangeNotifier {
     }
     return userCredential;
   }
+  //----------------register vendor using email----------------
 
-  //login
-  Future<UserCredential> loginVendor(email, password) async{
+
+  //---------------------------Login----------------------------
+  Future<UserCredential> loginVendor(email, password) async {
     this.email = email;
     notifyListeners();
     UserCredential userCredential;
@@ -108,53 +113,73 @@ class AuthProvider extends ChangeNotifier {
         password: password,
       );
     } on FirebaseAuthException catch (e) {
-      this.error = e.code;
+      this.error=e.code;
       notifyListeners();
     } catch (e) {
-      this.error = e.code();
+      this.error = e.code;
       notifyListeners();
       print(e);
     }
     return userCredential;
   }
+  //---------------------------Login----------------------------
 
-  //reset password
-  Future<void> resetPassword(email) async{
+
+  //----------------------Reset password------------------------
+  Future<void> resetPassword(email) async {
     this.email = email;
     notifyListeners();
     UserCredential userCredential;
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (e) {
-      this.error = e.code;
+      this.error=e.code;
       notifyListeners();
     } catch (e) {
-      this.error = e.code();
+      this.error = e.code;
       notifyListeners();
       print(e);
     }
     return userCredential;
   }
+  //----------------------Reset password------------------------
 
-  //save vendor data to Firestore
-  Future<void> saveVendorDataTodb({String url, String shopName, String mobie, String dialog}) {
+
+  //--------------------Save vendor data to Firestore-------------------
+  Future<void> saveVendorDataToDb(
+      {String url, String shopName, String mobile, String dialog}) {
     User user = FirebaseAuth.instance.currentUser;
     DocumentReference _vendors = FirebaseFirestore.instance.collection('vendors').doc(user.uid);
     _vendors.set({
-      'uid': user.uid,
-      'shopName': shopName,
-      'mobie': mobie,
-      'email': this.email,
-      'dialog' : dialog,
-      'address' : '${this.placeName} : ${this.shopAddress}',
-      'location' : GeoPoint(this.shopLatitude, this.shopLongitude),
+      'uid':user.uid,
+      'shopName':shopName,
+      'mobile':mobile,
+      'email':this.email,
+      'dialog': dialog,
+      'address' : '${this.placeName}: ${this.shopAddress}',
+      'location': GeoPoint(this.shopLatitude, this.shopLongitude),
       'shopOpen': true,
-      'rating': 0.00,
+      'rating':0.00,
       'totalRating':0,
-      'isTopPicked': false,
-      'imageUrl': url,
-      'accVerified': false, //only verified vendor can sell their product
+      'isTopPicked':false,
+      'imageUrl':url,
+      'accVerified':false,
+    }).whenComplete(()async{
+      //Gửi mail đến cho admin
+      await FlutterEmailSender.send(mail);
     });
     return null;
   }
+//--------------------Save vendor data to Firestore-------------------
 }
+
+final Email mail = Email(
+  body: 'Nội dung email',
+  subject: 'Chủ đề',
+  recipients: ['chanh12012001@gmail.com'],
+  cc: ['cc@example.com'],
+  bcc: ['bcc@example.com'],
+  isHTML: false,
+);
+
+
