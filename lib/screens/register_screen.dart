@@ -5,7 +5,6 @@ import 'package:grocery_vendor_app_flutter/widgets/register_form.dart';
 
 class RegisterScreen extends StatelessWidget {
   static const String id = 'register-screen';
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -27,17 +26,23 @@ class RegisterScreen extends StatelessWidget {
                           text: TextSpan(
                               text: '',
                               children: [
-                                TextSpan(text: 'Đã có tài khoản ? ', style: TextStyle(color: Colors.black)),
-                                TextSpan(text: 'Đăng nhập', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
+                                TextSpan(
+                                  text: 'Đã có tài khoản ? ',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                TextSpan(
+                                  text: 'Đăng nhập',
+                                  style: TextStyle(fontWeight: FontWeight.bold,color: Colors.red),
+                                ),
                               ]
                           ),
                         ),
-                        onPressed: () {
+                        onPressed: (){
                           Navigator.pushNamed(context, LoginScreen.id);
                         },
                       ),
                     ],
-                  ),
+                  )
                 ],
               ),
             ),

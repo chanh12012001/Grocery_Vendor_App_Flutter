@@ -1,8 +1,6 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:grocery_vendor_app_flutter/providers/product_provider.dart';
@@ -18,10 +16,10 @@ class BannerScreen extends StatefulWidget {
 
 class _BannerScreenState extends State<BannerScreen> {
 
-  FirebaseServices _services =FirebaseServices();
+  FirebaseServices _services = FirebaseServices();
   bool _visible = false;
   File _image;
-  var _imagePathText= TextEditingController();
+  var _imagePathText = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -33,11 +31,18 @@ class _BannerScreenState extends State<BannerScreen> {
         padding: EdgeInsets.zero,
         children: [
           BannerCard(),
-          Divider(thickness: 3,),
-          SizedBox(height: 20,),
+          Divider(
+            thickness: 3,
+          ),
+          SizedBox(
+            height: 20,
+          ),
           Container(
             child: Center(
-              child: Text('Thêm quảng cáo mới',style: TextStyle(fontWeight: FontWeight.bold),),
+              child: Text(
+                'THÊM QUẢNG CÁO MỚI',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
           ),
           Container(
@@ -51,33 +56,38 @@ class _BannerScreenState extends State<BannerScreen> {
                     width: MediaQuery.of(context).size.width,
                     child: Card(
                       color: Colors.grey[200],
-                      child: _image!=null ? Image.file(_image, fit: BoxFit.fill,) : Center(child: Text('Chưa có hình ảnh được chọn'),),
+                      child: _image!=null
+                          ? Image.file(_image,fit: BoxFit.fill,)
+                          : Center(child: Text('Không có ảnh nào được chọn'),),
                     ),
                   ),
                   TextFormField(
                     controller: _imagePathText,
                     enabled: false,
                     decoration: InputDecoration(
-                      contentPadding: EdgeInsets.zero,
-                      border: OutlineInputBorder(),
-                    ),
+                        contentPadding: EdgeInsets.zero,
+                        border: OutlineInputBorder()),
                   ),
-                  SizedBox(height: 20,),
+                  SizedBox(
+                    height: 20,
+                  ),
                   Visibility(
                     visible: _visible ? false : true,
                     child: Row(
                       children: [
                         Expanded(
-                          // ignore: deprecated_member_use
                           child: FlatButton(
                             color: Theme.of(context).primaryColor,
                             child: Text(
                               'Thêm quảng cáo mới',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             onPressed: () {
                               setState(() {
-                                _visible = true;
+                                _visible=true;
                               });
                             },
                           ),
@@ -89,20 +99,22 @@ class _BannerScreenState extends State<BannerScreen> {
                     visible: _visible,
                     child: Container(
                       child: Column(
-                        children:  [
+                        children: [
                           Row(
                             children: [
                               Expanded(
-                                // ignore: deprecated_member_use
                                 child: FlatButton(
                                   color: Theme.of(context).primaryColor,
                                   child: Text(
-                                    'Upload hình ảnh',
-                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                    'Tải ảnh lên',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                   onPressed: () {
                                     getBannerImage().then((value){
-                                      if (_image != null){
+                                      if(_image!=null){
                                         setState(() {
                                           _imagePathText.text = _image.path;
                                         });
@@ -117,34 +129,35 @@ class _BannerScreenState extends State<BannerScreen> {
                             children: [
                               Expanded(
                                 child: AbsorbPointer(
-                                  absorbing: _image!= null ? false : true,
+                                  absorbing: _image!=null ? false : true,
                                   child: FlatButton(
-                                    color: _image != null ? Theme.of(context).primaryColor : Colors.grey,
+                                    color: _image!=null ? Theme.of(context).primaryColor : Colors.grey,
                                     child: Text(
                                       'Lưu',
-                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                      style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
                                     ),
                                     onPressed: () {
-                                      EasyLoading.show(status: 'Đang lưu...');
-                                      uploadBannerImage(_image.path, _provider.shopName).then((url){
-                                        if (url != null) {
-                                          //save banner url to firestore
+                                      EasyLoading.show( status: 'Đang lưu...');
+                                      uploadBannerImage(_image.path,_provider.shopName).then((url){
+                                        if(url!=null){
+                                          //Lưu đường dẫn quảng cáo vào firestore
                                           _services.saveBanner(url);
                                           setState(() {
                                             _imagePathText.clear();
                                             _image = null;
                                           });
                                           EasyLoading.dismiss();
-                                          _provider.aleftDialog(
-                                              context: context,
-                                              title: 'Upload Quảng cáo',
-                                              content: 'Upload thành công'
+                                          _provider.alertDialog(
+                                            context: context,
+                                            title: 'Tải quảng cáo lên',
+                                            content: 'Tải ảnh quảng cáo thành công',
                                           );
                                         }else{
-                                          _provider.aleftDialog(
+                                          EasyLoading.dismiss();
+                                          _provider.alertDialog(
                                             context: context,
-                                            title: 'Upload Quảng cáo',
-                                            content: 'Upload thất bại'
+                                            title: 'Tải quảng cáo lên',
+                                            content: 'Tải thất bại',
                                           );
                                         }
                                       });
@@ -157,18 +170,17 @@ class _BannerScreenState extends State<BannerScreen> {
                           Row(
                             children: [
                               Expanded(
-                                // ignore: deprecated_member_use
                                 child: FlatButton(
                                   color: Colors.black54,
                                   child: Text(
-                                    'Hủy bỏ',
-                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                    'Cancel',
+                                    style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
                                   ),
                                   onPressed: () {
                                     setState(() {
-                                      _visible = false;
+                                      _visible=false;
                                       _imagePathText.clear();
-                                      _image = null;
+                                      _image=null;
                                     });
                                   },
                                 ),
@@ -178,28 +190,31 @@ class _BannerScreenState extends State<BannerScreen> {
                         ],
                       ),
                     ),
-                  ),
+                  )
                 ],
               ),
             ),
           ),
         ],
-      )
+      ),
     );
   }
 
   Future<File> getBannerImage() async {
     final picker = ImagePicker();
-    final pickedFile = await picker.getImage(source: ImageSource.gallery, imageQuality: 20);
+    final pickedFile = await picker.getImage(
+        source: ImageSource.gallery, imageQuality: 20);
     if (pickedFile != null) {
-      _image = File(pickedFile.path);
+      setState(() {
+        _image = File(pickedFile.path);
+      });
     } else {
-      print('Chưa chọn hình ảnh');
+      print('Không có ảnh nào được chọn.');
     }
     return _image;
   }
 
-  Future<String> uploadBannerImage(filePath, shopName) async {
+  Future<String> uploadBannerImage(filePath,shopName) async {
     File file = File(filePath);
     var timeStamp = Timestamp.now().millisecondsSinceEpoch;
 
@@ -208,10 +223,9 @@ class _BannerScreenState extends State<BannerScreen> {
     try {
       await _storage.ref('vendorbanner/$shopName/$timeStamp').putFile(file);
     } on FirebaseException catch (e) {
-      // e.g, e.code == 'canceled'
       print(e.code);
     }
-
+    //Sau khi tải tệp lên, cần đến đường dẫn url của tệp để lưu trong DB
     String downloadURL = await _storage
         .ref('vendorbanner/$shopName/$timeStamp').getDownloadURL();
     return downloadURL;

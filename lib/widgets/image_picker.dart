@@ -1,11 +1,9 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:grocery_vendor_app_flutter/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 
 class ShopPicCard extends StatefulWidget {
-
   @override
   _ShopPicCardState createState() => _ShopPicCardState();
 }
@@ -18,13 +16,13 @@ class _ShopPicCardState extends State<ShopPicCard> {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: InkWell(
-        onTap: () {
-          _authData.getImage().then((image) {
+        onTap: (){
+          _authData.getImage().then((image){
             setState(() {
-              _image = image;
+              _image=image;
             });
-            if (image != null) {
-              _authData.isPicAvail = true;
+            if(image!=null){
+              _authData.isPicAvail=true;
             }
           });
         },
@@ -32,15 +30,20 @@ class _ShopPicCardState extends State<ShopPicCard> {
           height: 150,
           width: 150,
           child: Card(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: _image == null ? Center(
-                child: Text(
-                  'Add Shop Image',
-                  style: TextStyle(color: Colors.grey),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: _image == null ? Center(
+                    child: Text(
+                      'Thêm ảnh shop',
+                      style: TextStyle(
+                        color: Colors.grey,
+                      ),
+                    )
+                ):Image.file(
+                  _image,
+                  fit: BoxFit.fill,
                 ),
-              ):Image.file(_image, fit: BoxFit.fill,),
-            )
+              )
           ),
         ),
       ),

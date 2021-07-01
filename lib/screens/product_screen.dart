@@ -33,7 +33,10 @@ class ProductScreen extends StatelessWidget {
                                   padding: const EdgeInsets.all(6.0),
                                   child: Text(
                                     '20',
-                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -44,24 +47,27 @@ class ProductScreen extends StatelessWidget {
                     ),
                     FlatButton.icon(
                       color: Theme.of(context).primaryColor,
-                      icon: Icon(Icons.add, color: Colors.white),
-                      label: Text('Thêm mới', style: TextStyle(color: Colors.white),),
-                      onPressed: () {
+                      icon: Icon(Icons.add,color: Colors.white,),
+                      label: Text(
+                        'Thêm mới',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onPressed: (){
                         Navigator.pushNamed(context, AddNewProduct.id);
                       },
-                    ),
+                    )
                   ],
                 ),
               ),
             ),
             TabBar(
               indicatorColor: Theme.of(context).primaryColor,
-                labelColor: Theme.of(context).primaryColor,
+              labelColor: Theme.of(context).primaryColor,
               unselectedLabelColor: Colors.black54,
               tabs: [
-                Tab(text: 'Đã phát hành',),
-                Tab(text: 'Chưa phát hành',)
-              ]
+                Tab(text: 'ĐÃ PHÁT HÀNH',),
+                Tab(text: 'CHƯA PHÁT HÀNH',),
+              ],
             ),
             Expanded(
               child: Container(
@@ -72,7 +78,7 @@ class ProductScreen extends StatelessWidget {
                   ],
                 ),
               ),
-            ),
+            )
           ],
         ),
       ),

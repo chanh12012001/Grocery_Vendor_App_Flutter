@@ -14,6 +14,7 @@ class MenuWidget extends StatefulWidget {
   _MenuWidgetState createState() => _MenuWidgetState();
 }
 
+
 class _MenuWidgetState extends State<MenuWidget> {
 
   User user = FirebaseAuth.instance.currentUser;
@@ -25,8 +26,10 @@ class _MenuWidgetState extends State<MenuWidget> {
     super.initState();
   }
 
-  Future<DocumentSnapshot> getVendorData() async {
+  Future<DocumentSnapshot>getVendorData()async{
+
     var result = await FirebaseFirestore.instance.collection('vendors').doc(user.uid).get();
+
     setState(() {
       vendorData = result;
     });
@@ -37,7 +40,7 @@ class _MenuWidgetState extends State<MenuWidget> {
   @override
   Widget build(BuildContext context) {
     var _provider = Provider.of<ProductProvider>(context);
-    _provider.getShopName(vendorData != null ? vendorData['shopName'] : '');
+    _provider.getShopName(vendorData !=null ? vendorData.data()['shopName']: '');
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.only(top: 30),
@@ -55,20 +58,20 @@ class _MenuWidgetState extends State<MenuWidget> {
                   CircleAvatar(
                     radius: 32,
                     backgroundColor: Colors.grey,
-                    child: CircleAvatar(
+                    child: CircleAvatar( //shop picture
                       radius: 30,
-                      backgroundImage: vendorData != null ? NetworkImage(vendorData['imageUrl']) : null,
+                      backgroundImage: vendorData!=null ? NetworkImage(vendorData.data()['imageUrl']): null,
                     ),
                   ),
                   SizedBox(width: 10,),
                   Text(
-                    vendorData != null ? vendorData['shopName'] : 'Shop Name',
+                    vendorData!=null ? vendorData.data()['shopName'] : 'Shop Name', //will display shop name here later
                     style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 25,
-                    ),
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 25,),
                   ),
+
                 ],
               ),
             ),
@@ -81,8 +84,6 @@ class _MenuWidgetState extends State<MenuWidget> {
           sliderItem('Quảng cáo', CupertinoIcons.photo),
           sliderItem('Mã giảm giá', CupertinoIcons.gift),
           sliderItem('Đơn đặt hàng', Icons.list_alt_outlined),
-          sliderItem('Báo cáo', Icons.stacked_bar_chart),
-          sliderItem('Cài đặt', Icons.settings_outlined),
           sliderItem('Đăng xuất', Icons.arrow_back_ios)
         ],
       ),
@@ -90,29 +91,30 @@ class _MenuWidgetState extends State<MenuWidget> {
   }
 
   Widget sliderItem(String title, IconData icons) => InkWell(
-    child: Container(
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.grey[300],
-          )
-        )
-      ),
-      child: SizedBox(
-        height: 40,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 20),
-          child: Row(
-            children: [
-              Icon(icons, color: Colors.black54, size: 18,),
-              SizedBox(width: 10,),
-              Text(title, style: TextStyle(color: Colors.black54, fontSize: 12),)
-            ],
+      child: Container(
+        decoration: BoxDecoration(
+            border: Border(
+                bottom: BorderSide(
+                    color: Colors.grey[300]
+                )
+            )
+        ),
+        child: SizedBox(
+          height: 40,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 20),
+            child: Row(
+              children: [
+                Icon(icons,color: Colors.black54,size: 18,),
+                SizedBox(width: 10,),
+                Text(title,style: TextStyle(color: Colors.black54,fontSize: 12),)
+              ],
+            ),
           ),
         ),
       ),
-    ),
       onTap: () {
         widget.onItemClick(title);
-      });
+      }
+  );
 }

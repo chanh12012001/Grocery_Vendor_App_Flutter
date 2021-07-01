@@ -14,7 +14,7 @@ class CouponScreen extends StatelessWidget {
           stream: _services.coupons.where('sellerId', isEqualTo: _services.user.uid).snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
-              return Text('Xảy ra sự cố');
+              return Text('Đã xảy ra sự cố');
             }
 
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -30,7 +30,12 @@ class CouponScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(8.0),
                       child: FlatButton(
                         color: Theme.of(context).primaryColor,
-                        child: Text('Thêm mã giảm giá mới', style: TextStyle(color: Colors.white),),
+                        child: Text(
+                          'Thêm mã giảm giá',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
                         onPressed: () {
                           Navigator.pushNamed(context, AddEditCoupon.id);
                         },
@@ -40,11 +45,21 @@ class CouponScreen extends StatelessWidget {
                 ),
                 FittedBox(
                   child: DataTable(columns: <DataColumn>[
-                    DataColumn(label: Text('Tiêu đề')),
-                    DataColumn(label: Text('Tỷ lệ')),
-                    DataColumn(label: Text('Trạng thái')),
-                    DataColumn(label: Text('Thông tin')),
-                    DataColumn(label: Text('Expiry')),
+                    DataColumn(
+                      label: Text('Title'),
+                    ),
+                    DataColumn(
+                      label: Text('Rate'),
+                    ),
+                    DataColumn(
+                      label: Text('Status'),
+                    ),
+                    DataColumn(
+                      label: Text('Info'),
+                    ),
+                    DataColumn(
+                      label: Text('Expiry'),
+                    ),
                   ], rows: _couponList(snapshot.data, context)),
                 )
               ],
@@ -55,26 +70,37 @@ class CouponScreen extends StatelessWidget {
     );
   }
 
-  List<DataRow> _couponList(QuerySnapshot snapshot, context){
-    List<DataRow> newList = snapshot.docs.map((DocumentSnapshot document) {
-      if (document != null) {
-        var date = document['Expiry'];
-        var expiry = DateFormat.yMMMd().add_jm().format(date.toDate());
-        return DataRow(cells: [
-          DataCell(Text(document['title'])),
-          DataCell(Text(document['discountRate'].toString())),
-          DataCell(Text(document['active'] ? 'Active' : 'Inactive'),),
-          DataCell(Text(expiry.toString())),
-          DataCell(IconButton(
-            icon: Icon(
-                Icons.info_outline_rounded),
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => AddEditCoupon(document: document)));
-                },
-          ),
-          ),
-        ]);
-      }}
+  List<DataRow> _couponList(QuerySnapshot snapshot, context) {
+    List<DataRow> newList = snapshot.docs.map(
+          (DocumentSnapshot document) {
+        if (document != null) {
+          var date = document['Expiry'];
+          var expiry = DateFormat.yMMMd().add_jm().format(date.toDate());
+          return DataRow(
+            cells: [
+              DataCell(Text(document['title'])),
+              DataCell(Text(document['discountRate'].toString())),
+              DataCell(Text(document['active'] ? 'Hoạt động' : 'Không hoạt động'),),
+              DataCell(Text(expiry.toString()),),
+              DataCell(
+                IconButton(
+                  icon: Icon(Icons.info_outline_rounded),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddEditCoupon(
+                          document: document,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        }
+      },
     ).toList();
     return newList;
   }
