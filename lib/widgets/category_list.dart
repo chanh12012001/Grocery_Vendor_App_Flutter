@@ -173,7 +173,7 @@ class _SubCategoryListState extends State<SubCategoryList> {
                         )
                       ],
                     ),
-                  ): Text('No Category Selected');
+                  ): Text('Không có danh mục được chọn');
                 }
                 return Center(child: CircularProgressIndicator(),);
               }

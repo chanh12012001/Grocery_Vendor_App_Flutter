@@ -79,7 +79,6 @@ class _MenuWidgetState extends State<MenuWidget> {
           SizedBox(
             height: 10,
           ),
-          sliderItem('Dashboard', Icons.dashboard_outlined),
           sliderItem('Sản phẩm', Icons.shopping_bag_outlined),
           sliderItem('Quảng cáo', CupertinoIcons.photo),
           sliderItem('Mã giảm giá', CupertinoIcons.gift),
@@ -100,14 +99,14 @@ class _MenuWidgetState extends State<MenuWidget> {
             )
         ),
         child: SizedBox(
-          height: 40,
+          height: 55,
           child: Padding(
             padding: const EdgeInsets.only(left: 20),
             child: Row(
               children: [
-                Icon(icons,color: Colors.black54,size: 18,),
+                Icon(icons,color: Colors.black54, size: 20,),
                 SizedBox(width: 10,),
-                Text(title,style: TextStyle(color: Colors.black54,fontSize: 12),)
+                Text(title,style: TextStyle(color: Colors.black54,fontSize: 16),)
               ],
             ),
           ),

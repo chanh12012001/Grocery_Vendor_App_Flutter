@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:grocery_vendor_app_flutter/screens/edit_view_product.dart';
 import 'package:grocery_vendor_app_flutter/services/firebase_service.dart';
@@ -8,9 +9,14 @@ class UnPublishedProducts extends StatelessWidget {
   Widget build(BuildContext context) {
 
     FirebaseServices _services = FirebaseServices();
+    User user = FirebaseAuth.instance.currentUser;
+
     return Container(
       child: StreamBuilder(
-        stream: _services.products.where('published',isEqualTo: false).snapshots(),
+        stream: _services.products
+            .where('published',isEqualTo: false)
+            .where('seller.sellerUid',isEqualTo: user.uid)
+            .snapshots(),
         builder: (context,snapshot){
           if(snapshot.hasError){
             return Text('Đã xảy ra sự cố');

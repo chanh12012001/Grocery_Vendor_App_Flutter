@@ -22,7 +22,7 @@ class _OrderScreenState extends State<OrderScreen> {
     'Tất cả',
     'Đã đặt hàng',
     'Đã chấp nhận',
-    'Picked up',
+    'Đang lấy hàng',
     'Đang giao hàng',
     'Đã giao hàng'
   ];

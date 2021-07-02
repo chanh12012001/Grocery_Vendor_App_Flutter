@@ -21,7 +21,7 @@ class OrderServices {
     if (document.data()['orderStatus'] == 'Đã chấp nhận') {
       return Colors.blueGrey[400];
     }
-    if (document.data()['orderStatus'] == 'Picked Up') {
+    if (document.data()['orderStatus'] == 'Đang lấy hàng') {
       return Colors.pink[900];
     }
     if (document.data()['orderStatus'] == 'Đang di chuyển') {
@@ -130,7 +130,7 @@ class OrderServices {
                 onPressed: () {
                   showMyDialog(
                     'Xác nhận đơn hàng',
-                    'Đã xác nhận',
+                    'Đã chấp nhận',
                     document.id,
                     context,
                   );
@@ -173,7 +173,7 @@ class OrderServices {
     if (document.data()['orderStatus'] == 'Đã chấp nhận') {
       return Icon(Icons.assignment_turned_in_outlined,color: statusColor(document),);
     }
-    if (document.data()['orderStatus'] == 'Picked Up') {
+    if (document.data()['orderStatus'] == 'Đang lấy hàng') {
       return Icon(Icons.cases,color: statusColor(document),);
 
     }

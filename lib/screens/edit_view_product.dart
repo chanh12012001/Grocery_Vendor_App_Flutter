@@ -78,7 +78,7 @@ class _EditViewProductState extends State<EditViewProduct> {
           _stockTextController.text = document['stockQty'].toString();
           _lowStockTextController.text = document['lowStockQty'].toString();
           _taxTextController.text = document['tax'].toString();
-          categoryImage = document['categoryImage'];
+          //categoryImage = document['categoryImage'];
         });
       }
     });
