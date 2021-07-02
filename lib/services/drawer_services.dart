@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:grocery_vendor_app_flutter/screens/banner_screen.dart';
 import 'package:grocery_vendor_app_flutter/screens/coupon_screen.dart';
-import 'package:grocery_vendor_app_flutter/screens/dashboard_screen.dart';
 import 'package:grocery_vendor_app_flutter/screens/login_screen.dart';
 import 'package:grocery_vendor_app_flutter/screens/order_screen.dart';
 import 'package:grocery_vendor_app_flutter/screens/product_screen.dart';
@@ -13,9 +12,6 @@ class DrawerServices{
   BuildContext context;
 
   Widget drawerScreen(title,context){
-    if(title == 'Dashboard'){
-      return MainScreen();
-    }
     if(title == 'Sản phẩm'){
       return ProductScreen();
     }
@@ -41,6 +37,6 @@ class DrawerServices{
                 builder: (context) => LoginScreen()));
       });
     }
-    return MainScreen();
+    return ProductScreen();
   }
 }

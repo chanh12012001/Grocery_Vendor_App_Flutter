@@ -40,7 +40,7 @@ class _SplashScreenState extends State<SplashScreen> {
             Image.asset('images/logo.png'),
             Text(
               'Grocery Store - Vendor App',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
           ],
         ),
