@@ -139,8 +139,8 @@ Hồ Quang - 19520875@gm.uit.edu.vn
 
 # Link source code dành cho người quản lý :
 https://github.com/chanh12012001/Grocery_Admin_App_Flutter
-# Link source code dành cho người bán hàng (cửa hàng tiện lợi):
-https://github.com/chanh12012001/Grocery_Vendor_App_Flutter
+# Link source code dành cho người mua hàng :
+https://github.com/chanh12012001/Grocery_App_Flutter
 # Link source code dành cho người giao hàng :
 https://github.com/chanh12012001/Grocery_Delivery_App_Flutter
 # DEMO APP :
