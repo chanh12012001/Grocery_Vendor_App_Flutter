@@ -1,6 +1,6 @@
-# Ứng dụng mua hàng trực tuyến từ các cửa hàng tiện lợi xung quanh
+# Ứng dụng bán hàng trực tuyến từ các cửa hàng tiện lợi xung quanh
 
-Ứng dụng giúp người dùng mua các mặt hàng mình cần ngay trên chiếc điện thoại của mình mà không cần phải tốn sức ra đến cửa hàng. Từ đó giúp khách hàng tiết kiệm thời gian.
+Ứng dụng giúp các cửa hàng bán các mặt hàng mình cần ngay trên chiếc điện thoại của mình và đưa thông tin nhanh đến khách hàng. Từ đó giúp khách hàng tiết kiệm thời gian.
 
 ## Nội dung
 1. [Chức năng](#chức-năng)
